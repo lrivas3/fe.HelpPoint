@@ -1,0 +1,72 @@
+<form [formGroup]="form" novalidate class="space-y-4" (ngSubmit)="doLogin()">
+    <div>
+        <p-input-group>
+            <p-inputgroup-addon>
+                <i class="pi pi-user"></i>
+            </p-inputgroup-addon>
+            <input pInputText
+                   formControlName="email"
+                   placeholder="Enter email"
+                   type="email"
+            />
+        </p-input-group>
+    </div>
+    @if (emailControl?.touched && emailControl?.invalid) {
+        <p
+            *ngIf="form.get('email')?.hasError('required')"
+            class="font-medium text-red-500 text-xs mt-1 ml-1"
+        >
+            Campo requerido
+        </p>
+        <p
+            *ngIf="form.get('email')?.hasError('email')"
+            class="font-medium text-red-500 text-xs mt-1 ml-1"
+        >
+            Este campo debe ser un email valido
+        </p>
+    }
+
+    <div>
+        <p-input-group>
+            <p-inputgroup-addon>
+                <i class="pi pi-key"></i>
+            </p-inputgroup-addon>
+            <input pInputText
+                   formControlName="password"
+                   placeholder="Enter password"
+                   [type]="showPassword ? 'text' : 'password'"
+                   class="w-full rounded bg-gray-100 border-gray-300 border-2"
+            />
+            <p-inputgroup-addon>
+                <p-button type="button" (click)="showPassword = !showPassword">
+                    <i [class]="showPassword ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+                </p-button>
+            </p-inputgroup-addon>
+        </p-input-group>
+    </div>
+    @if (passwordControl?.touched && passwordControl?.invalid) {
+        <p
+            *ngIf="form.get('password')?.hasError('required')"
+            class="font-medium text-red-500 text-xs mt-1 ml-1"
+        >
+            Campo requerido
+        </p>
+        <p
+            *ngIf="form.get('password')?.hasError('minlength')"
+            class="font-medium text-red-500 text-xs mt-1 ml-1"
+        >
+            La contraseña debe tener al menos 10 caracteres
+        </p>
+    }
+
+    <div *ngIf="status === 'failed'">
+        <p class="font-medium text-red-500 text-xs mt-1 ml-1">Credentials are invalid</p>
+    </div>
+
+    <div>
+        <app-btn typeBtn="submit" color="success" [loading]="status === 'loading'">
+            Login
+        </app-btn>
+    </div>
+</form>
+
