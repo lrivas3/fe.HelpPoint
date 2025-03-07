@@ -13,6 +13,7 @@ import { Button } from 'primeng/button';
 @Component({
     selector: 'app-login-form',
     imports: [ReactiveFormsModule, NgIf, ButtonComponent, InputGroup, InputGroupAddon, InputText, Button],
+    standalone: true,
     templateUrl: './login-form.component.html'
 })
 export class LoginFormComponent {
@@ -28,7 +29,7 @@ export class LoginFormComponent {
     ) {
         this.form = this.formBuilder.nonNullable.group({
             email: ['', [Validators.email, Validators.required]],
-            password: ['', [Validators.required, Validators.minLength(12)]]
+            password: ['', [Validators.required]]
         });
     }
 

@@ -8,6 +8,7 @@ import { RevenueStreamWidget } from './components/revenuestreamwidget';
 @Component({
     selector: 'app-dashboard',
     imports: [StatsWidget, RecentSalesWidget, BestSellingWidget, RevenueStreamWidget, NotificationsWidget],
+    standalone: true,
     template: `
         <div class="grid grid-cols-12 gap-8">
             <app-stats-widget class="contents" />
