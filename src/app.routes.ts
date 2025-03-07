@@ -5,21 +5,16 @@ import { Dashboard } from './app/modules/dashboard/dashboard';
 import { AppLayout } from './app/layout/component/app.layout';
 import { AuthGuard } from '@guards/auth.guard';
 import { RedirectGuard } from '@guards/redirect.guard';
+import pagesRoutes from './app/modules/pages.routes';
 
 export const appRoutes: Routes = [
     {
         path: '',
-        canActivate: [RedirectGuard],
-        component: LoginComponent
-    },
-    {
-        path: 'dashboard',
         component: AppLayout,
         canActivate: [AuthGuard],
         children: [
             { path: '', component: Dashboard },
-            { path: 'uikit', loadChildren: () => import('./app/modules/uikit/uikit.routes') },
-            { path: 'pages', loadChildren: () => import('./app/modules/pages.routes') }
+            { path: 'app', loadChildren: () => import('./app/modules/pages.routes') }
         ]
     },
     {

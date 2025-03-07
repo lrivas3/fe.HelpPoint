@@ -40,7 +40,7 @@ export class LoginFormComponent {
             this.authService.login(email, password).subscribe({
                 next: () => {
                     this.status = 'success';
-                    this.router.navigate(['/dashboard']);
+                    this.router.navigate(['/']);
                 },
                 error: () => {
                     this.status = 'failed';

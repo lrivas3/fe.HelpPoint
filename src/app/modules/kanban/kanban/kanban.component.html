@@ -1,1 +1,155 @@
-<p>kanban works!</p>
+<div
+    id="kanban-wrapper"
+    cdkDropList
+    [cdkDropListData]="columns"
+    cdkDropListOrientation="horizontal"
+    (cdkDropListDropped)="onDropColumn($event)"
+    class="cdk-drop-list flex gap-8 w-full flex-col md:flex-row flex-nowrap lg:overflow-y-hidden overflow-x-auto"
+>
+    <!-- Column -->
+    <div
+        *ngFor="let column of columns"
+        cdkDrag
+        class="card md:w-[25rem] overflow-hidden shadow-md !rounded-border flex-shrink-0 p-kanban-list border border-surface px-1.5"
+    >
+        <!-- Column Header -->
+        <div class="flex justify-between items-center w-full px-4 py-3 " cdkDragHandle style="cursor: move;">
+            <p-inplace>
+                <ng-template pTemplate="display">
+                    <span class="text-lg font-semibold">{{ column.title }}</span>
+                </ng-template>
+                <ng-template pTemplate="content">
+                    <div class="inline-flex items-center gap-1 h-10">
+                        <input
+                            type="text"
+                            [(ngModel)]="column.title"
+                            pInputText
+                            class="p-inputtext p-component h-full !rounded-r-none w-[10rem]"
+                        />
+                        <p-button
+                            icon="pi pi-check"
+                            (click)="confirmEdit()">
+                        </p-button>
+                    </div>
+                </ng-template>
+            </p-inplace>
+            <!-- Column menu button -->
+            <div>
+                <button
+                    pButton
+                    icon="pi pi-ellipsis-h"
+                    class="p-ripple p-button-rounded p-button-text p-button-secondary p-button p-component p-button-icon-only"
+                ></button>
+            </div>
+        </div>
+        <!-- Cards list area -->
+        <div
+            cdkDropList
+            [cdkDropListData]="column.cards"
+            class="cdk-drop-list flex flex-col gap-8 overflow-y-auto mt-6 ml-0 mr-0 scrollable kanban-list px-0"
+            [id]="column.id"
+            (cdkDropListDropped)="onCardDrop($event, column)"
+            style="min-height: 10rem;"
+        >
+            <!-- Card -->
+            <div
+                *ngFor="let card of column.cards"
+                cdkDrag
+                [attr.id]="card.id"
+                class="cdk-drag"
+            >
+                <div
+                    cdkDragHandle
+                    class="cdk-drag-handle flex bg-surface-0 dark:bg-surface-900 flex-col w-full border border-surface p-4 gap-4 hover:bg-surface-50 dark:hover:bg-surface-950 cursor-pointer rounded-border"
+                >
+                    <!-- Title + Menu -->
+                    <div class="flex justify-between items-center">
+            <span class="text-surface-900 dark:text-surface-0 font-semibold">
+            {{ card.title }}
+            </span>
+                        <div>
+                            <p-button
+                                icon="pi pi-ellipsis-v"
+                                rounded
+                                text
+                                severity="secondary"
+                                class="p-ripple p-trigger p-button p-component p-button-icon-only p-button-text p-button-secondary p-button-rounded"
+                            >
+                            </p-button>
+                        </div>
+                    </div>
+                    <!-- Description -->
+                    <div
+                        class="text-surface-700 dark:text-surface-100"
+                        style="word-break: break-word;"
+                        *ngIf="card.description"
+                    >
+                        {{ card.description }}
+                    </div>
+                    <!-- Progress bar (optional) -->
+                    <p-progress-bar
+                        *ngIf="card.progress"
+                        [value]="card.progress"
+                    ></p-progress-bar>
+                    <!-- Bottom row: Avatars, stats, etc. -->
+                    <div class="flex items-center justify-between flex-col md:flex-row gap-6 md:gap-0">
+                        <!-- Avatars -->
+                        <p-avatar-group>
+                            <p-avatar
+                                *ngFor="let avatar of card.avatars"
+                                label="{{avatar}}"
+                                shape="circle"
+                                styleClass="border-2 border-surface"
+                            >
+                            </p-avatar>
+                        </p-avatar-group>
+                        <!-- Attachments, due date, etc. -->
+                        <div class="flex items-center gap-4" *ngIf="card.attachments || card.dueDate || card.checklist">
+                <span
+                    *ngIf="card.checklist"
+                    class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"
+                >
+                <i class="pi pi-check-square text-surface-700 dark:text-surface-100 mr-2"></i
+                >{{ card.checklist }}
+                </span>
+                            <span
+                                *ngIf="card.attachments"
+                                class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"
+                            >
+                <i class="pi pi-paperclip text-surface-700 dark:text-surface-100 mr-2"></i
+                >{{ card.attachments }}
+                </span>
+                            <span
+                                *ngIf="card.dueDate"
+                                class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"
+                            >
+                <i class="pi pi-clock text-surface-700 dark:text-surface-100 mr-2"></i
+                >{{ card.dueDate }}
+                </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- "New Card" button -->
+        <div class="px-4 mb-4 w-full mt-6 flex">
+            <button
+                pButton
+                label="New Card"
+                icon="pi pi-plus font-semibold"
+                class="p-ripple py-4 justify-center font-semibold w-full rounded-border p-button p-component"
+                (click)="addCard(column)"
+            ></button>
+        </div>
+    </div>
+    <!-- "New List" button (adds a new column) -->
+    <div class="px-4 py-1 mb-4 md:w-[25rem] shrink-0">
+        <button
+            pButton
+            label="New List"
+            icon="pi pi-plus font-semibold"
+            class="p-ripple py-4 justify-center font-semibold w-full rounded p-button p-component"
+            (click)="addColumn()"
+        ></button>
+    </div>
+</div>

@@ -8,18 +8,19 @@ import { AppMenuitem } from './app.menuitem';
     selector: 'app-menu',
     standalone: true,
     imports: [CommonModule, AppMenuitem, RouterModule],
-    template: `<ul class="layout-menu">
-        <ng-container *ngFor="let item of model; let i = index">
-            <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
-            <li *ngIf="item.separator" class="menu-separator"></li>
-        </ng-container>
-    </ul> `
+    template: `
+        <ul class="layout-menu">
+            <ng-container *ngFor="let item of menuItems; let i = index">
+                <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
+                <li *ngIf="item.separator" class="menu-separator"></li>
+            </ng-container>
+        </ul> `
 })
 export class AppMenu {
-    model: MenuItem[] = [];
+    menuItems: MenuItem[] = [];
 
     ngOnInit() {
-        this.model = [
+        this.menuItems = [
             {
                 label: 'Home',
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
@@ -27,10 +28,8 @@ export class AppMenu {
             {
                 label: 'Tickets',
                 items: [
-                    { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
-                    { label: 'Input', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] },
-                    { label: 'Button', icon: 'pi pi-fw pi-mobile', class: 'rotated-icon', routerLink: ['/uikit/button'] },
-                    { label: 'Table', icon: 'pi pi-fw pi-table', routerLink: ['/uikit/table'] },
+                    { label: 'Tickets', icon: 'pi pi-fw pi-ticket', class: 'rotated-icon', routerLink: ['/app/ticket'] },
+                    { label: 'Solicitudes de soporte', icon: 'pi pi-fw pi-comments', routerLink: ['/'] },
                 ]
             },
         ];
