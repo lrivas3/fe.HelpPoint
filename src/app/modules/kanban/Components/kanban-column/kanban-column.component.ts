@@ -20,6 +20,7 @@ import { MenuItem, MenuItemCommandEvent } from 'primeng/api';
 })
 export class KanbanColumnComponent {
     @Input() column!: KanbanColumn;
+    @Input() dropListIds: string[] = [];
 
     items: MenuItem[] | undefined;
 
@@ -66,5 +67,9 @@ export class KanbanColumnComponent {
 
     confirmEdit() {
 
+    }
+
+    get connectedDropListIds(): string[] {
+        return this.dropListIds.filter(id => id !== this.column.id);
     }
 }

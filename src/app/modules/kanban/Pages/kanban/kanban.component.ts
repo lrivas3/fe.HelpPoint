@@ -41,4 +41,8 @@ export class KanbanComponent {
             cards: []
         });
     }
+
+    get dropListIds(): string[] {
+        return this.columns.map(column => column.id);
+    }
 }
