@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Empty } from './empty/empty';
-import { KanbanComponent } from './kanban/kanban/kanban.component';
+import { KanbanComponent } from './kanban/Pages/kanban/kanban.component';
 import { AuthGuard } from '@guards/auth.guard';
 
 export default [

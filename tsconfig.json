@@ -22,6 +22,12 @@
             "@models/*": [
                 "src/app/models/*"
             ],
+            "@modules/*": [
+                "src/app/modules/*"
+            ],
+            "@kanban/*": [
+                "src/app/modules/kanban/*"
+            ],
             "@shared/*": [
                 "src/app/modules/shared/*"
             ],

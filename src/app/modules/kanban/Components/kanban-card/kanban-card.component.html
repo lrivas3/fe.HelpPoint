@@ -1,0 +1,77 @@
+<div
+    cdkDrag
+    [attr.id]="ticketCard.id"
+    class="cdk-drag"
+>
+    <div
+        cdkDragHandle
+        class="cdk-drag-handle flex bg-surface-0 dark:bg-surface-900 flex-col w-full border border-surface p-4 gap-4 hover:bg-surface-50 dark:hover:bg-surface-950 cursor-pointer rounded-border"
+    >
+        <!-- Title + Menu -->
+        <div class="flex justify-between items-center">
+            <span class="text-surface-900 dark:text-surface-0 font-semibold">
+            {{ ticketCard.title }}
+            </span>
+            <div>
+                <p-button
+                    icon="pi pi-ellipsis-v"
+                    rounded
+                    text
+                    severity="secondary"
+                    class="p-ripple p-trigger p-button p-component p-button-icon-only p-button-text p-button-secondary p-button-rounded"
+                >
+                </p-button>
+            </div>
+        </div>
+        <!-- Description -->
+        <div
+            class="text-surface-700 dark:text-surface-100"
+            style="word-break: break-word;"
+            *ngIf="ticketCard.description"
+        >
+            {{ ticketCard.description }}
+        </div>
+        <!-- Progress bar (optional) -->
+        <p-progress-bar
+            *ngIf="ticketCard.progress"
+            [value]="ticketCard.progress"
+        ></p-progress-bar>
+        <!-- Bottom row: Avatars, stats, etc. -->
+        <div class="flex items-center justify-between flex-col md:flex-row gap-6 md:gap-0">
+            <!-- Avatars -->
+            <p-avatar-group>
+                <p-avatar
+                    *ngFor="let avatar of ticketCard.avatars"
+                    label="{{avatar}}"
+                    shape="circle"
+                    styleClass="border-2 border-surface"
+                >
+                </p-avatar>
+            </p-avatar-group>
+            <!-- Attachments, due date, etc. -->
+            <div class="flex items-center gap-4" *ngIf="ticketCard.attachments || ticketCard.dueDate || ticketCard.checklist">
+                <span
+                    *ngIf="ticketCard.checklist"
+                    class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"
+                >
+                <i class="pi pi-check-square text-surface-700 dark:text-surface-100 mr-2"></i
+                >{{ ticketCard.checklist }}
+                </span>
+                <span
+                    *ngIf="ticketCard.attachments"
+                    class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"
+                >
+                <i class="pi pi-paperclip text-surface-700 dark:text-surface-100 mr-2"></i
+                >{{ ticketCard.attachments }}
+                </span>
+                <span
+                    *ngIf="ticketCard.dueDate"
+                    class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"
+                >
+                <i class="pi pi-clock text-surface-700 dark:text-surface-100 mr-2"></i
+                >{{ ticketCard.dueDate }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
