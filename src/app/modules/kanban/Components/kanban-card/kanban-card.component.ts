@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { KanbanCard } from '@models/kanban/kanban-card.model';
 import { Avatar } from 'primeng/avatar';
 import { AvatarGroup } from 'primeng/avatargroup';
-import { Button, ButtonDirective } from 'primeng/button';
+import { Button } from 'primeng/button';
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { ProgressBar } from 'primeng/progressbar';
@@ -10,14 +10,18 @@ import { Tag } from 'primeng/tag';
 import { Badge } from 'primeng/badge';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
+import { ToastService } from '@services/toast.service';
+import { ToastSeverity } from '@models/toast-severity';
 
 @Component({
     selector: 'app-kanban-card',
+    standalone: true,
     imports: [Avatar, AvatarGroup, Button, CdkDrag, CdkDragHandle, NgForOf, NgIf, ProgressBar, Tag, Badge, Menu, DatePipe],
     templateUrl: './kanban-card.component.html',
     styleUrl: './kanban-card.component.scss'
 })
 export class KanbanCardComponent {
+    constructor(private toastService: ToastService) {}
     @Input() ticketCard!: KanbanCard;
     items: MenuItem[] | undefined;
 

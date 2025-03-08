@@ -8,11 +8,13 @@ import { appRoutes } from './app.routes';
 
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
+import { MessageService } from 'primeng/api';
 
 registerLocaleData(localeEs);
 
 export const appConfig: ApplicationConfig = {
     providers: [
+        MessageService,
         { provide: LOCALE_ID, useValue: 'es' },
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         provideHttpClient(withFetch()),
