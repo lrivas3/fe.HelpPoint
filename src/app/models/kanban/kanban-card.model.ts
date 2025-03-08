@@ -11,6 +11,5 @@ export interface KanbanCard {
     progress?: number;
     checklist?: string;
     attachments?: number;
-    dueDate?: string;
     avatars?: string[];
 }

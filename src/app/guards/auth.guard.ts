@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
     const isValidToken = this.tokenService.isValidRefreshToken();
     console.log('isValidToken from AuthGuard ', isValidToken);
     if (!isValidToken) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/access']);
       return false;
     }
     return true;

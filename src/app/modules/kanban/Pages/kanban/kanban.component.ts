@@ -26,11 +26,11 @@ export class KanbanComponent {
                     progress: 25,
                     // checklist: '1 / 4',
                     // attachments: 2,
-                    creationDate: new Date(Date.now()),
+                    creationDate: new Date(),
                     // dueDate: 'May 25',
                     avatars: ['J', 'Q']
                 },
-                { id: '11', title: 'Task 2', description: 'Another task', attachments: 1, dueDate: 'May 17', avatars: ['A', 'B'] }
+                { id: '11', title: 'Task 2', description: 'Another task', attachments: 1, avatars: ['A', 'B'] }
             ]
         },
         {
@@ -39,6 +39,11 @@ export class KanbanComponent {
             cards: []
         }
     ];
+
+    ngOnInit() {
+        console.log(this.columns);
+    }
+
 
     onDropColumn(event: CdkDragDrop<KanbanColumn[]>) {
         moveItemInArray(this.columns, event.previousIndex, event.currentIndex);
