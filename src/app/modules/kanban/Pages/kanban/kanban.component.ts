@@ -19,7 +19,17 @@ export class KanbanComponent {
             id: '1',
             title: 'Backlog',
             cards: [
-                { id: '22', title: 'Task 1', description: 'Some description', progress: 25, checklist: '1 / 4', attachments: 2, dueDate: 'May 25', avatars: ['J', 'Q'] },
+                {
+                    id: '22',
+                    title: 'Actualizacion de antivirus en computadoras de la contable',
+                    description: 'Some description',
+                    progress: 25,
+                    // checklist: '1 / 4',
+                    // attachments: 2,
+                    creationDate: new Date(Date.now()),
+                    // dueDate: 'May 25',
+                    avatars: ['J', 'Q']
+                },
                 { id: '11', title: 'Task 2', description: 'Another task', attachments: 1, dueDate: 'May 17', avatars: ['A', 'B'] }
             ]
         },
@@ -43,6 +53,6 @@ export class KanbanComponent {
     }
 
     get dropListIds(): string[] {
-        return this.columns.map(column => column.id);
+        return this.columns.map((column) => column.id);
     }
 }

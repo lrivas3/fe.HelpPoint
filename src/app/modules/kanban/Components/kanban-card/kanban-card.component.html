@@ -11,6 +11,20 @@
         <div class="flex justify-between items-center">
             <span class="text-surface-900 dark:text-surface-0 font-semibold">
             {{ ticketCard.title }}
+                <div class="tags flex gap-2 items-center">
+                  <p-tag severity="success" styleClass="custom-tag">
+                    <span>Success</span>
+                    <i class="pi pi-times close-icon" (click)="removeTag(ticketCard, 'Success')"></i>
+                  </p-tag>
+                  <p-tag severity="info" styleClass="custom-tag">
+                    <span>Info</span>
+                    <i class="pi pi-times close-icon" (click)="removeTag(ticketCard, 'Info')"></i>
+                  </p-tag>
+                  <p-tag severity="warn" styleClass="custom-tag">
+                    <span>Warn</span>
+                    <i class="pi pi-times close-icon" (click)="removeTag(ticketCard, 'Warn')"></i>
+                  </p-tag>
+                </div>
             </span>
             <div>
                 <p-button
@@ -39,15 +53,18 @@
         <!-- Bottom row: Avatars, stats, etc. -->
         <div class="flex items-center justify-between flex-col md:flex-row gap-6 md:gap-0">
             <!-- Avatars -->
-            <p-avatar-group>
-                <p-avatar
-                    *ngFor="let avatar of ticketCard.avatars"
-                    label="{{avatar}}"
-                    shape="circle"
-                    styleClass="border-2 border-surface"
-                >
-                </p-avatar>
-            </p-avatar-group>
+            <div class="flex items-center gap-2">
+                <p-avatar-group>
+                    <p-avatar *ngFor="let avatar of ticketCard.avatars"
+                              [label]="avatar"
+                              shape="circle"
+                              class="border-2 border-surface" />
+                </p-avatar-group>
+                <p-badge [value]="''" severity="success" class="w-3 h-3 min-w-0 rounded-full p-0" />
+                <div>
+                    {{'estado'}}
+                </div>
+            </div>
             <!-- Attachments, due date, etc. -->
             <div class="flex items-center gap-4" *ngIf="ticketCard.attachments || ticketCard.dueDate || ticketCard.checklist">
                 <span

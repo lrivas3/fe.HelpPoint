@@ -1,0 +1,22 @@
+/* Make the tag a flex container to align content */
+.custom-tag {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 0.5rem; /* extra spacing on the right */
+}
+
+/* Style the close icon */
+.close-icon {
+    font-size: 0.7rem;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover effect: light up and slightly enlarge */
+.close-icon:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* subtle highlight */
+    transform: scale(1.1);
+}
