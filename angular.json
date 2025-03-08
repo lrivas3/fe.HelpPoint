@@ -4,6 +4,9 @@
     "newProjectRoot": "projects",
     "projects": {
         "helppoint": {
+            "i18n": {
+                "sourceLocale": "en-US"
+            },
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
