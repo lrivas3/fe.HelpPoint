@@ -69,14 +69,7 @@
                 </div>
             </div>
             <!-- Attachments, due date, etc. -->
-            <div class="flex items-center gap-4" *ngIf="ticketCard.attachments || ticketCard.creationDate || ticketCard.checklist">
-                <span
-                    *ngIf="ticketCard.checklist"
-                    class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"
-                >
-                <i class="pi pi-check-square text-surface-700 dark:text-surface-100 mr-2"></i
-                >{{ ticketCard.checklist }}
-                </span>
+            <div class="flex items-center gap-4" *ngIf="ticketCard.attachments || ticketCard.creationDate">
                 <span
                     *ngIf="ticketCard.attachments"
                     class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"

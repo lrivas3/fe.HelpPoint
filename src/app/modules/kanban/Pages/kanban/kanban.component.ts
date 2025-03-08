@@ -24,10 +24,8 @@ export class KanbanComponent {
                     title: 'Actualizacion de antivirus en computadoras de la contable',
                     description: 'Some description',
                     progress: 25,
-                    // checklist: '1 / 4',
-                    // attachments: 2,
+                    attachments: 2,
                     creationDate: new Date(),
-                    // dueDate: 'May 25',
                     avatars: ['J', 'Q']
                 },
                 { id: '11', title: 'Task 2', description: 'Another task', attachments: 1, avatars: ['A', 'B'] }
@@ -52,7 +50,7 @@ export class KanbanComponent {
     addColumn() {
         this.columns.push({
             id: Math.random().toString(36).substring(2, 7),
-            title: 'New List',
+            title: 'Nueva Lista',
             cards: []
         });
     }

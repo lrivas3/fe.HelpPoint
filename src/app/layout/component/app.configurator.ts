@@ -114,6 +114,27 @@ export class AppConfigurator {
         if (isPlatformBrowser(this.platformId)) {
             this.onPresetChange(this.layoutService.layoutConfig().preset);
         }
+        this.config.setTranslation({
+            accept: 'Aceptar',
+            reject: 'Rechazar',
+            choose: 'Elegir',
+            upload: 'Subir',
+            cancel: 'Cancelar',
+            dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+            dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+            dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
+            monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+            monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+            today: 'Hoy',
+            clear: 'Limpiar',
+            weekHeader: 'Sem',
+            firstDayOfWeek: 1,
+            dateFormat: 'dd/mm/yy',
+            weak: 'Débil',
+            medium: 'Medio',
+            strong: 'Fuerte',
+            passwordPrompt: 'Introduce una contraseña',
+        });
     }
 
     surfaces: SurfacesType[] = [
