@@ -2,7 +2,11 @@
     cdkDrag
     [attr.id]="ticketCard.id"
     class="cdk-drag"
+    (cdkDragStarted)="onDragStarted($event)"
 >
+    <div class="example-custom-placeholder" *cdkDragPlaceholder
+         [ngStyle]="{'height.px': elementHeight}"
+    ></div>
     <div
         cdkDragHandle
         class="cdk-drag-handle flex bg-surface-0 dark:bg-surface-900 flex-col w-full border border-surface p-4 gap-4 hover:bg-surface-50 dark:hover:bg-surface-950 cursor-pointer rounded-border"

@@ -20,3 +20,12 @@
     background-color: rgba(0, 0, 0, 0.1); /* subtle highlight */
     transform: scale(1.1);
 }
+
+.example-custom-placeholder {
+    background: var(--surface-card);
+    border: dotted 3px var(--focus-ring-color);
+    transition: transform var(--transition-duration) cubic-bezier(0, 0, 0.2, 1);
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    border-radius: var(--content-border-radius);
+}
