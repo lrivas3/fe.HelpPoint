@@ -3,16 +3,14 @@ import { Table, TableModule } from 'primeng/table';
 import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { Tag } from 'primeng/tag';
-import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
-import { Slider } from 'primeng/slider';
+import { DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputText } from 'primeng/inputtext';
 
 @Component({
     selector: 'app-requests-list',
-    imports: [TableModule, Button, IconField, InputIcon, Tag, CurrencyPipe, DatePipe, NgClass, Slider, FormsModule, DropdownModule, InputText],
+    imports: [TableModule, Button, IconField, InputIcon, DatePipe, NgClass, FormsModule, DropdownModule, InputText],
     templateUrl: './requests-list.component.html',
     styleUrl: './requests-list.component.scss'
 })

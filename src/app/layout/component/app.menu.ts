@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
@@ -16,7 +16,7 @@ import { AppMenuitem } from './app.menuitem';
             </ng-container>
         </ul> `
 })
-export class AppMenu {
+export class AppMenu implements OnInit{
     menuItems: MenuItem[] = [];
 
     ngOnInit() {

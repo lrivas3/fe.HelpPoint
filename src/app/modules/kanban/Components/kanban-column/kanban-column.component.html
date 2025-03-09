@@ -35,10 +35,10 @@
          (cdkDropListDropped)="onCardDrop($event)"
          style="min-height: 100px;">
         <ng-container *ngIf="column.cards.length; else emptyList">
-            <app-kanban-card *ngFor="let card of column.cards" [ticketCard]="card" cdkDrag></app-kanban-card>
+            <app-kanban-card *ngFor="let card of column.cards" [ticketCard]="card"></app-kanban-card>
         </ng-container>
             <ng-template #emptyList>
-            <div class="empty-drop-area" style="height: 50px;"></div>
+            <div class="empty-drop-area" style="height: 30px;"></div>
         </ng-template>
     </div>
 

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDropList, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -9,14 +9,14 @@ import { KanbanColumn } from '@models/kanban/kanban-list.model';
 import { KanbanCard } from '@models/kanban/kanban-card.model';
 import { InputText } from 'primeng/inputtext';
 import { Menu } from 'primeng/menu';
-import { MenuItem, MenuItemCommandEvent } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 
 @Component({
     selector: 'app-kanban-column',
     templateUrl: './kanban-column.component.html',
     styleUrls: ['./kanban-column.component.scss'],
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, InplaceModule, CdkDropList, KanbanCardComponent, InputText, CdkDrag, Menu]
+    imports: [CommonModule, FormsModule, ButtonModule, InplaceModule, CdkDropList, KanbanCardComponent, InputText, Menu]
 })
 export class KanbanColumnComponent {
     @Input() column!: KanbanColumn;
