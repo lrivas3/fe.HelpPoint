@@ -9,10 +9,11 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
+import { Divider } from 'primeng/divider';
 
 @Component({
     selector: 'app-login-form',
-    imports: [ReactiveFormsModule, NgIf, ButtonComponent, InputGroup, InputGroupAddon, InputText, Button],
+    imports: [ReactiveFormsModule, NgIf, ButtonComponent, InputGroup, InputGroupAddon, InputText, Button, Divider],
     standalone: true,
     templateUrl: './login-form.component.html'
 })

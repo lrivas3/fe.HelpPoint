@@ -19,6 +19,12 @@
         "module": "ES2022",
         "baseUrl": "./",
         "paths": {
+            "@public/*": [
+                "src/app/public/*"
+            ],
+            "@support-request/*": [
+                "src/app/public/pages/support-request/*"
+            ],
             "@models/*": [
                 "src/app/models/*"
             ],
