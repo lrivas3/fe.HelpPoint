@@ -8,7 +8,7 @@ import { SupportFormComponent } from '@public/components/support-form/support-fo
     ],
     template: `
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen overflow-hidden">
-            <div class="items-center justify-center w-full">
+            <div class="items-center justify-center">
                 <app-support-form></app-support-form>
             </div>
         </div>

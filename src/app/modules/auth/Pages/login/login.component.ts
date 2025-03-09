@@ -10,17 +10,15 @@ import { AppFloatingConfigurator } from '../../../../layout/component/app.floati
 import { LoginFormComponent } from '../../Components/login-form/login-form.component';
 import { SvgIconComponent } from '@shared/Icon/svg-icon/svg-icon.component';
 import { Divider } from 'primeng/divider';
-import { ButtonComponent } from '@shared/button/button.component';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, LoginFormComponent, SvgIconComponent, Divider, ButtonComponent],
+    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, LoginFormComponent, SvgIconComponent, Divider],
     templateUrl: './login.component.html'
 })
 export class LoginComponent {
-    constructor(private router: Router) {
-    }
+    constructor(private router: Router) {}
     email: string = '';
 
     password: string = '';

@@ -11,6 +11,8 @@ import { NgForOf, NgIf } from '@angular/common';
 import { ToastService } from '@services/toast.service';
 import { ToastSeverity } from '@models/toast-severity';
 import { PrimeNG } from 'primeng/config';
+import { RecaptchaModule } from 'ng-recaptcha';
+import { environment } from '@environments/environment';
 
 interface UploadEvent {
     originalEvent: Event;
@@ -30,12 +32,14 @@ interface UploadEvent {
         FileUpload,
         NgIf,
         NgForOf,
-        Button
+        Button,
+        RecaptchaModule
     ],
   templateUrl: './support-form.component.html',
   styleUrl: './support-form.component.scss'
 })
 export class SupportFormComponent {
+    siteKey = environment.recaptchaSiteKey;
     constructor(private config: PrimeNG,private toastService: ToastService) {
     }
     dropdownItem: any;
@@ -44,6 +48,10 @@ export class SupportFormComponent {
 
     sendSRequest() {
 
+    }
+
+    executeRecaptcha(token: any) {
+        console.log(token);
     }
 
     onUpload(event: FileUploadEvent) {

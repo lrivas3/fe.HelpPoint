@@ -29,7 +29,7 @@ export class AppMenu {
                 label: 'Tickets',
                 items: [
                     { label: 'Tickets', icon: 'pi pi-fw pi-ticket', class: 'rotated-icon', routerLink: ['/app/ticket'] },
-                    { label: 'Solicitudes de soporte', icon: 'pi pi-fw pi-comments', routerLink: ['/'] },
+                    { label: 'Solicitudes de soporte', icon: 'pi pi-fw pi-comments', routerLink: ['/app/requests'] },
                 ]
             },
         ];

@@ -76,6 +76,13 @@
                     </ng-template>
                 </p-fileupload>
 
+                <div class="flex justify-center w-full max-w-xs mx-auto overflow-visible scale-90 sm:scale-100">
+                    <re-captcha
+                        (resolved)="executeRecaptcha($event)"
+                        [siteKey]="siteKey">
+                    </re-captcha>
+                </div>
+
                 <div class="flex justify-center mt-6">
                     <button
                         pButton
@@ -85,6 +92,7 @@
                         (click)="sendSRequest()"
                     ></button>
                 </div>
+
             </div>
         </div>
     </div>
