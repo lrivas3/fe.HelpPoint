@@ -127,7 +127,7 @@ export class AppTopMenuComponent {
         if (ctrlRequired && !event.ctrlKey) return false;
         if (shiftRequired && !event.shiftKey) return false;
         if (altRequired && !event.altKey) return false;
-        if (keyRequired && event.key.toLowerCase() !== keyRequired) return false;
-        return true;
+        return !(keyRequired && event.key.toLowerCase() !== keyRequired);
+
     }
 }
