@@ -4,8 +4,10 @@ import { Ripple } from 'primeng/ripple';
 import { Badge } from 'primeng/badge';
 import { NgIf } from '@angular/common';
 import { Avatar } from 'primeng/avatar';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MenuItemCommandEvent } from 'primeng/api';
 import { SvgIconComponent } from '@shared/Icon/svg-icon/svg-icon.component';
+import { TokenService } from '@services/token.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-app-top-menu',
@@ -29,7 +31,7 @@ import { SvgIconComponent } from '@shared/Icon/svg-icon/svg-icon.component';
                     <span *ngIf="item.shortcut" class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">
                         {{ item.shortcut }}
                     </span>
-                </a>
+               </a>
             </ng-template>
             <ng-template #end>
                 <button pRipple class="relative overflow-hidden w-full border-0 bg-transparent flex items-start p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200">
@@ -44,6 +46,8 @@ import { SvgIconComponent } from '@shared/Icon/svg-icon/svg-icon.component';
     `
 })
 export class AppTopMenuComponent {
+    constructor(private tokenService: TokenService, private router: Router) {
+    }
     @ViewChild('menu') menu!: Menu;
     items: MenuItem[] | undefined;
 
@@ -62,7 +66,7 @@ export class AppTopMenuComponent {
                 items: [
                     { label: 'Configuraciones', icon: 'pi pi-cog', shortcut: '⌘+O' },
                     { label: 'Notificaciones', icon: 'pi pi-inbox', badge: '2' },
-                    { label: 'Cerrar Sesión', icon: 'pi pi-sign-out', shortcut: '⌘+Q' }
+                    { label: 'Cerrar Sesión', icon: 'pi pi-sign-out', shortcut: '⌘+Q', command: () => this.logOut() }
                 ]
             },
             { separator: true }
@@ -71,5 +75,11 @@ export class AppTopMenuComponent {
 
     open(event: Event) {
         this.menu.toggle(event);
+    }
+
+    logOut(): void {
+        this.tokenService.removeToken();
+        this.tokenService.removeRefreshToken();
+        this.router.navigate(['/login']);
     }
 }
