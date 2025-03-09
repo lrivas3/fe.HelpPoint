@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, HostListener } from '@angular/core';
 import { Menu } from 'primeng/menu';
 import { Ripple } from 'primeng/ripple';
 import { Badge } from 'primeng/badge';
@@ -31,7 +31,7 @@ import { Router } from '@angular/router';
                     <span *ngIf="item.shortcut" class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">
                         {{ item.shortcut }}
                     </span>
-               </a>
+                </a>
             </ng-template>
             <ng-template #end>
                 <button pRipple class="relative overflow-hidden w-full border-0 bg-transparent flex items-start p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200">
@@ -46,8 +46,8 @@ import { Router } from '@angular/router';
     `
 })
 export class AppTopMenuComponent {
-    constructor(private tokenService: TokenService, private router: Router) {
-    }
+    constructor(private tokenService: TokenService, private router: Router) {}
+
     @ViewChild('menu') menu!: Menu;
     items: MenuItem[] | undefined;
 
@@ -57,16 +57,21 @@ export class AppTopMenuComponent {
             {
                 label: 'Tickets',
                 items: [
-                    { label: 'New', icon: 'pi pi-plus', shortcut: '⌘+N' },
-                    { label: 'Search', icon: 'pi pi-search', shortcut: '⌘+S' }
+                    { label: 'Nuevo', icon: 'pi pi-plus', shortcut: 'CTRL+N' },
+                    { label: 'Buscar', icon: 'pi pi-search', shortcut: 'CTRL+K' }
                 ]
             },
             {
                 label: 'Perfil',
                 items: [
-                    { label: 'Configuraciones', icon: 'pi pi-cog', shortcut: '⌘+O' },
+                    { label: 'Configuraciones', icon: 'pi pi-cog', shortcut: 'CTRL+O' },
                     { label: 'Notificaciones', icon: 'pi pi-inbox', badge: '2' },
-                    { label: 'Cerrar Sesión', icon: 'pi pi-sign-out', shortcut: '⌘+Q', command: () => this.logOut() }
+                    {
+                        label: 'Cerrar Sesión',
+                        icon: 'pi pi-sign-out',
+                        shortcut: 'CTRL+Q',
+                        command: () => this.logOut()
+                    }
                 ]
             },
             { separator: true }
@@ -81,5 +86,48 @@ export class AppTopMenuComponent {
         this.tokenService.removeToken();
         this.tokenService.removeRefreshToken();
         this.router.navigate(['/login']);
+    }
+
+    // Listen for keydown events at the document level
+    @HostListener('document:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (!this.items) {
+            return;
+        }
+        if (this.handleShortcutForItems(this.items, event)) {
+            event.preventDefault();
+        }
+    }
+
+    // Recursively checks items for a matching shortcut
+    private handleShortcutForItems(items: MenuItem[], event: KeyboardEvent): boolean {
+        for (const item of items) {
+            if (item['shortcut'] && this.matchesShortcut(event, item['shortcut'])) {
+                if (item.command) {
+                    const commandEvent: MenuItemCommandEvent = { originalEvent: event, item };
+                    item.command(commandEvent);
+                    return true;
+                }
+            }
+            if (item.items) {
+                if (this.handleShortcutForItems(item.items, event)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private matchesShortcut(event: KeyboardEvent, shortcut: string): boolean {
+        const keys = shortcut.toLowerCase().split('+').map(k => k.trim());
+        const ctrlRequired = keys.includes('ctrl') || keys.includes('control');
+        const shiftRequired = keys.includes('shift');
+        const altRequired = keys.includes('alt');
+        const keyRequired = keys.find(k => k !== 'ctrl' && k !== 'control' && k !== 'shift' && k !== 'alt');
+        if (ctrlRequired && !event.ctrlKey) return false;
+        if (shiftRequired && !event.shiftKey) return false;
+        if (altRequired && !event.altKey) return false;
+        if (keyRequired && event.key.toLowerCase() !== keyRequired) return false;
+        return true;
     }
 }
