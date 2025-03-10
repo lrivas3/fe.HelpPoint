@@ -4,19 +4,18 @@ import { Avatar } from 'primeng/avatar';
 import { AvatarGroup } from 'primeng/avatargroup';
 import { Button } from 'primeng/button';
 import { CdkDrag, CdkDragHandle, CdkDragPlaceholder, CdkDragStart } from '@angular/cdk/drag-drop';
-import { DatePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
+import { DatePipe, NgForOf, NgIf, NgStyle, SlicePipe } from '@angular/common';
 import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
 import { Badge } from 'primeng/badge';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
 import { ToastService } from '@services/toast.service';
-import { ToastSeverity } from '@models/toast-severity';
 
 @Component({
     selector: 'app-kanban-card',
     standalone: true,
-    imports: [Avatar, AvatarGroup, Button, CdkDrag, CdkDragHandle, NgForOf, NgIf, ProgressBar, Tag, Badge, Menu, DatePipe, CdkDragPlaceholder, NgStyle],
+    imports: [Avatar, AvatarGroup, Button, CdkDrag, CdkDragHandle, NgForOf, NgIf, ProgressBar, Tag, Badge, Menu, DatePipe, CdkDragPlaceholder, NgStyle, SlicePipe],
     templateUrl: './kanban-card.component.html',
     styleUrl: './kanban-card.component.scss'
 })
@@ -42,7 +41,6 @@ export class KanbanCardComponent implements OnInit {
             }
         ];
     }
-
 
     onDragStarted(event: CdkDragStart): void {
         const draggedElement = event.source.element.nativeElement;

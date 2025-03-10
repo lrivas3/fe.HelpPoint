@@ -62,15 +62,15 @@
             <!-- Avatars -->
             <div class="flex items-center gap-2">
                 <p-avatar-group>
-                    <p-avatar *ngFor="let avatar of ticketCard.avatars"
+                    <!-- Muestra los dos primeros avatares -->
+                    <p-avatar *ngFor="let avatar of ticketCard.avatars | slice:0:2"
                               [label]="avatar"
                               shape="circle"
                               class="border-2 border-surface" />
+                    <ng-container *ngIf="ticketCard.avatars && ticketCard.avatars.length > 2">
+                        <p-avatar label="+{{ ticketCard.avatars.length - 2 }}" shape="circle" class="border-2 border-surface" />
+                    </ng-container>
                 </p-avatar-group>
-                <p-badge [value]="''" severity="success" class="w-3 h-3 min-w-0 rounded-full p-0" />
-                <div>
-                    {{'estado'}}
-                </div>
             </div>
             <!-- Attachments, due date, etc. -->
             <div class="flex items-center gap-4" *ngIf="ticketCard.attachments || ticketCard.creationDate">

@@ -26,7 +26,7 @@ export class KanbanComponent {
                     progress: 25,
                     attachments: 2,
                     creationDate: new Date(),
-                    avatars: ['J', 'Q']
+                    avatars: ['J', 'Q', 'R']
                 },
                 { id: '11', title: 'Task 2', description: 'Another task', attachments: 1, avatars: ['A', 'B'] }
             ]
