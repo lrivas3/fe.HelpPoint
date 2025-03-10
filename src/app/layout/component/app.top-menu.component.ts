@@ -40,8 +40,8 @@ import { User } from '@models/user.model';
             <ng-template #end>
                 <button pRipple
                         class="relative overflow-hidden w-full border-0 bg-transparent flex items-start p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200">
-                    <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" class="mr-2"
-                              shape="circle" />
+                    <p-avatar label="{{user?.avatar }}" styleClass="mr-2"
+                              [style]="{ 'background-color': '#dee9fc', 'color': '#1a2551' }" shape="circle" />
                     <span class="inline-flex flex-col">
                         <span class="font-bold">{{ user?.name }}</span>
                         <span class="text-sm">{{ user?.role }}</span>
