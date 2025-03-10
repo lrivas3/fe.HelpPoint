@@ -61,7 +61,11 @@ export class AppTopMenuComponent implements OnInit {
     user: User | null = null;
 
     ngOnInit() {
-        this.user = this.authService.getDataUser();
+
+        this.authService.user$.subscribe(user => {
+            this.user = user;
+        })
+
         this.items = [
             { separator: true },
             {
