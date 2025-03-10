@@ -1,63 +1,66 @@
-import { Injectable } from '@angular/core';
 import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HttpContextToken,
-  HttpContext,
+    HttpRequest,
+    HttpHandlerFn,
+    HttpEvent,
+    HttpContext,
+    HttpContextToken,
 } from '@angular/common/http';
 import { Observable, switchMap } from 'rxjs';
-
 import { TokenService } from '@services/token.service';
 import { AuthService } from '@services/auth.service';
+import { inject } from '@angular/core';
 
 const CHECK_TOKEN = new HttpContextToken<boolean>(() => false);
 
 export function checkToken() {
-  return new HttpContext().set(CHECK_TOKEN, true);
+    return new HttpContext().set(CHECK_TOKEN, true);
 }
 
-@Injectable()
-export class TokenInterceptor implements HttpInterceptor {
+export const tokenInterceptor = (
+    req: HttpRequest<unknown>,
+    next: HttpHandlerFn
+): Observable<HttpEvent<unknown>> => {
+    const tokenService = inject(TokenService);
+    const authService = inject(AuthService);
 
-  constructor(
-    private tokenService: TokenService,
-    private authService: AuthService
-  ) {}
-
-  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    if (request.context.get(CHECK_TOKEN)) {
-      const isValidToken = this.tokenService.isValidToken(); // accessToken
-      if (isValidToken) {
-        return this.addToken(request, next);
-      } else {
-        return this.updateAccessTokenAndRefreshToken(request, next);
-      }
+    if (req.context.get(CHECK_TOKEN)) {
+        const isValidToken = tokenService.isValidToken();
+        if (isValidToken) {
+            return addToken(req, next, tokenService);
+        } else {
+            return updateAccessTokenAndRefreshToken(req, next, tokenService, authService);
+        }
     }
-    return next.handle(request);
-  }
+    return next(req);
+};
 
-  private addToken(request: HttpRequest<unknown>, next: HttpHandler) {
-    const accessToken = this.tokenService.getToken();
+const addToken = (
+    req: HttpRequest<unknown>,
+    next: HttpHandlerFn,
+    tokenService: TokenService
+): Observable<HttpEvent<unknown>> => {
+    const accessToken = tokenService.getToken();
     if (accessToken) {
-      const authRequest = request.clone({
-        headers: request.headers.set('Authorization', `Bearer ${accessToken}`)
-      });
-      return next.handle(authRequest);
+        const authRequest = req.clone({
+            headers: req.headers.set('Authorization', `Bearer ${accessToken}`)
+        });
+        return next(authRequest);
     }
-    return next.handle(request);
-  }
+    return next(req);
+};
 
-  private updateAccessTokenAndRefreshToken(request: HttpRequest<unknown>, next: HttpHandler) {
-    const refreshToken = this.tokenService.getRefreshToken();
-    const isValidRefreshToken = this.tokenService.isValidRefreshToken();
+const updateAccessTokenAndRefreshToken = (
+    req: HttpRequest<unknown>,
+    next: HttpHandlerFn,
+    tokenService: TokenService,
+    authService: AuthService
+): Observable<HttpEvent<unknown>> => {
+    const refreshToken = tokenService.getRefreshToken();
+    const isValidRefreshToken = tokenService.isValidRefreshToken();
     if (refreshToken && isValidRefreshToken) {
-      return this.authService.refreshToken(refreshToken)
-      .pipe(
-        switchMap(() => this.addToken(request, next)),
-      )
+        return authService.refreshToken(refreshToken).pipe(
+            switchMap(() => addToken(req, next, tokenService))
+        );
     }
-    return next.handle(request);
-  }
-}
+    return next(req);
+};

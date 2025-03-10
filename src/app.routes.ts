@@ -15,8 +15,14 @@ export const appRoutes: Routes = [
         component: AppLayout,
         canActivate: [AuthGuard],
         children: [
-            { path: '', component: Dashboard },
-            { path: 'app', loadChildren: () => import('./app/modules/pages.routes') }
+            {
+                path: '',
+                component: Dashboard
+            },
+            {
+                path: 'app',
+                loadChildren: () => import('./app/modules/pages.routes')
+            }
         ]
     },
     {
@@ -27,9 +33,7 @@ export const appRoutes: Routes = [
     {
         path: 'support',
         component: SupportRequestComponent,
-        children: [
-            { path: 'request', loadChildren: () => import('./app/public/public.routes') },
-        ]
+        children: [{ path: 'request', loadChildren: () => import('./app/public/public.routes') }]
     },
     { path: 'notfound', component: Notfound },
     { path: 'access', component: Access },

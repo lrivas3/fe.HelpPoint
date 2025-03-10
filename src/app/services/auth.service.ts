@@ -3,11 +3,11 @@ import { environment } from '@environments/environment';
 
 import { switchMap, tap } from 'rxjs/operators';
 import { TokenService } from '@services/token.service';
-import { MeService } from '@services/me.service';
 import { ResponseLogin } from '@models/auth.model';
 import { User } from '@models/user.model';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { UsersService } from '@services/users.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +19,7 @@ export class AuthService {
     constructor(
         private http: HttpClient,
         private tokenService: TokenService,
-        private meService: MeService,
+        private userService: UsersService,
     ) { }
 
     getDataUser() {
@@ -77,7 +77,7 @@ export class AuthService {
     }
 
     getProfile() {
-        return this.meService.getMeProfile()
+        return this.userService.getProfile()
             .pipe(
                 tap(user => {
                     this.user$.next(user);

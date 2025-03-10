@@ -66,7 +66,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
             </div>
         </div>
 
-        <app-app-top-menu #topMenu></app-app-top-menu>
+        <app-app-top-menu #topMenu ></app-app-top-menu>
     `
 })
 export class AppTopbar {

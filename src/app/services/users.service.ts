@@ -14,8 +14,13 @@ export class UsersService {
   constructor(private http: HttpClient) {}
 
   getUsers() {
-    return this.http.get<User[]>(`${this.apiUrl}/api/v1/users`, {
+    return this.http.get<User[]>(`${this.apiUrl}/api/v1/user`, {
       context: checkToken(),
     });
+  }
+  getProfile() {
+      return this.http.get<User>(`${this.apiUrl}/api/v1/user/profile`, {
+          context: checkToken(),
+      })
   }
 }
