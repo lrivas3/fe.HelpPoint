@@ -7,23 +7,31 @@ import { CdkDrag, CdkDragHandle, CdkDragPlaceholder, CdkDragStart } from '@angul
 import { DatePipe, NgForOf, NgIf, NgStyle, SlicePipe } from '@angular/common';
 import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
-import { Badge } from 'primeng/badge';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
 import { ToastService } from '@services/toast.service';
+import { TicketService } from '@kanban/services/ticket.service';
 
 @Component({
     selector: 'app-kanban-card',
     standalone: true,
-    imports: [Avatar, AvatarGroup, Button, CdkDrag, CdkDragHandle, NgForOf, NgIf, ProgressBar, Tag, Badge, Menu, DatePipe, CdkDragPlaceholder, NgStyle, SlicePipe],
+    imports: [Avatar, AvatarGroup,
+        Button, CdkDrag, CdkDragHandle,
+        NgForOf, NgIf, ProgressBar,
+        Tag, Menu, DatePipe,
+        CdkDragPlaceholder, NgStyle,
+        SlicePipe ],
     templateUrl: './kanban-card.component.html',
     styleUrl: './kanban-card.component.scss'
 })
 export class KanbanCardComponent implements OnInit {
-    constructor(private toastService: ToastService) {}
+    constructor(private toastService: ToastService, private ticketService: TicketService) {}
     @Input() ticketCard!: KanbanCard;
     items: MenuItem[] | undefined;
     elementHeight: number = 50;
+    openTicketForm(): void {
+        this.ticketService.setSelectedTicket(this.ticketCard);
+    }
 
     removeTag(ticketCard: KanbanCard, success: string) {}
     ngOnInit() {

@@ -1,0 +1,165 @@
+<p-dialog
+    [(visible)]="visible"
+    [draggable]="false"
+    [closeOnEscape]="true"
+    [dismissableMask]="true"
+    [modal]="true"
+    [style]="{ width: '70rem' }">
+
+    <!-- Header del dialog con un título compacto -->
+    <ng-template #header>
+        <div class="flex items-center p-2 ml-3 mb-3">
+            <span class="font-semibold text-xl">
+                {{ selectedTicket.title || 'Nuevo Ticket' }}
+            </span>
+        </div>
+    </ng-template>
+
+    <!-- Cuerpo del dialog dividido en 2 columnas -->
+    <div class="flex pl-5 pr-5">
+        <!-- Columna Izquierda (4/5 del ancho): Descripción -->
+        <div class="w-4/5">
+            <div class="flex flex-col gap-2 mb-4">
+                <div class="pb-4">
+                    <span class="text-surface-900 dark:text-surface-0 font-semibold">
+                        <div class="tags flex gap-2 items-center">
+                          <p-tag severity="success" styleClass="custom-tag">
+                            <span>Success</span>
+                            <i class="pi pi-times close-icon" (click)="removeTag('Success')"></i>
+                          </p-tag>
+                          <p-tag severity="info" styleClass="custom-tag">
+                            <span>Info</span>
+                            <i class="pi pi-times close-icon" (click)="removeTag('Info')"></i>
+                          </p-tag>
+                          <p-tag severity="warn" styleClass="custom-tag">
+                            <span>Warn</span>
+                            <i class="pi pi-times close-icon" (click)="removeTag('Warn')"></i>
+                          </p-tag>
+                        </div>
+                    </span>
+                </div>
+                <label for="description" class="text-left mb-2">Descripción</label>
+                <p-editor
+                    id="description"
+                    [(ngModel)]="selectedTicket.description"
+                    [style]="{ height: '320px', width: '100%' }">
+                </p-editor>
+                <!-- File upload area -->
+                <div class="border border-dashed border-gray-700 rounded p-4 mb-4 text-center">
+                    <div class="flex items-center justify-center">
+                        <i class="pi pi-paperclip mr-2 text-gray-400"></i>
+                        <span class="text-gray-400">Click para <span class="text-blue-400">buscar</span> o arrastra archivos aquí</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-span-12 flex flex-col gap-y-6 px-8 mb-12">
+                <!-- Título de la sección -->
+                <span class="block text-surface-900 dark:text-surface-0 font-semibold text-lg">
+                   Comments
+                </span>
+
+                <!-- Área para escribir un nuevo comentario -->
+                <div class="flex items-center">
+                    <!-- Avatar del usuario -->
+                    <p-avatar
+                        icon="pi pi-user"
+                        shape="circle"
+                        size="large"
+                        styleClass="w-14 h-14 mr-4 bg-surface-200 dark:bg-surface-800">
+                    </p-avatar>
+                    <!-- Input de texto para el comentario -->
+                    <input pInputText
+                           type="text"
+                           pSize="large"
+                           placeholder="Large" />
+                    <!--                <p-inputTextarea-->
+                    <!--                    rows="3"-->
+                    <!--                    autoResize="autoResize"-->
+                    <!--                    placeholder="Write a comment..."-->
+                    <!--                    class="w-full">-->
+                    <!--                </p-inputTextarea>-->
+                </div>
+
+                <!-- Lista de comentarios -->
+                <div *ngFor="let comment of comments" class="flex items-center rounded border p-2">
+                    <!-- Avatar del comentario (si existe imagen, se muestra; de lo contrario, se usa un ícono por defecto) -->
+                    <p-avatar
+                        *ngIf="comment.avatarUrl; else defaultAvatar"
+                        image="{{ comment.avatarUrl }}"
+                        shape="circle"
+                        size="large"
+                        styleClass="w-14 h-14 mr-4">
+                    </p-avatar>
+                    <ng-template #defaultAvatar>
+                        <p-avatar
+                            icon="pi pi-user"
+                            shape="circle"
+                            size="large"
+                            styleClass="w-14 h-14 mr-4 bg-surface-200 dark:bg-surface-800">
+                        </p-avatar>
+                    </ng-template>
+                    <!-- Contenido del comentario -->
+                    <div class="ml-4 w-full">
+                        <div class="flex justify-between mb-2">
+                            <span class="block text-surface-900 dark:text-surface-0">
+                              {{ comment.name }}
+                            </span>
+                                                <span class="block text-surface-700 dark:text-surface-100">
+                              {{ comment.timestamp }}
+                            </span>
+                                            </div>
+                                            <span
+                                                class="block text-surface-900 dark:text-surface-0 border bg-surface-50 dark:bg-surface-950 border-surface p-2 rounded"
+                                                style="word-break: break-all;">
+                            {{ comment.content }}
+                          </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Divider Vertical -->
+        <p-divider layout="vertical"></p-divider>
+
+        <!-- Columna Derecha (1/4 del ancho): Controles -->
+        <div class="w-1/4 p-3">
+            <div class="flex flex-col mb-4">
+                <label for="estado" class="mb-2">Estado</label>
+                <p-select
+                    id="estado"
+                    [options]="catalogoService.estados()"
+                    [(ngModel)]="selectedTicket.stateCode"
+                    placeholder="Estado">
+                </p-select>
+            </div>
+            <div class="flex flex-col mb-4">
+                <label for="prioridad" class="mb-2">Prioridad</label>
+                <p-dropdown
+                    id="prioridad"
+                    [options]="priorityOptions"
+                    [(ngModel)]="selectedTicket.priorityCode"
+                    placeholder="Prioridad">
+                </p-dropdown>
+            </div>
+            <div class="flex flex-col mb-4">
+                <label for="fechaCreacion" class="mb-2">Fecha de Creación</label>
+                <p id="fechaCreacion"> {{ selectedTicket.creationDate | date: 'EEEE, MMMM dd' }} </p>
+            </div>
+            <div class="flex flex-col mb-4">
+                <label for="fechaCierre" class="mb-2">Fecha de Cierre</label>
+                <p id="fechaCierre"> {{ selectedTicket.closureDate | date: 'EEEE, MMMM dd' }} </p>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <ng-template #footer>
+        <p-button label="Cancel" [text]="true" severity="secondary" (click)="cancel()"></p-button>
+        <p-button label="Save" [outlined]="true" severity="secondary" (click)="saveTicket()"></p-button>
+    </ng-template>
+</p-dialog>

@@ -12,10 +12,11 @@ import { InputText } from 'primeng/inputtext';
     selector: 'app-requests-list',
     imports: [TableModule, Button, IconField, InputIcon, DatePipe, NgClass, FormsModule, DropdownModule, InputText],
     templateUrl: './requests-list.component.html',
+    standalone: true,
     styleUrl: './requests-list.component.scss'
 })
 export class RequestsListComponent implements OnInit {
-    customers!: any[];
+    tickets!: any[];
 
     representatives!: any[];
 
@@ -37,6 +38,15 @@ export class RequestsListComponent implements OnInit {
         //
         //     this.customers.forEach((customer) => (customer.date = new Date(<Date>customer.date)));
         // });
+
+        this.tickets = [
+            { titulo: 'Soporte para la unidad financiera', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta'},
+            { titulo: 'Cambio de monitor', descripcion: 'se arruino mi monitor', fecha: '2030230', verified: true, prioridad: 'alta' },
+            { titulo: 'Cambio de teclado', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta' },
+            { titulo: 'Problemas de red', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta' },
+            { titulo: 'Mala conexion', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta' },
+            { titulo: 'Renovacion de licencia', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta' },
+        ]
 
         this.representatives = [
             { name: 'Amy Elsner', image: 'amyelsner.png' },

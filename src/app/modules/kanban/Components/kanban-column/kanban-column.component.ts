@@ -10,6 +10,7 @@ import { KanbanCard } from '@models/kanban/kanban-card.model';
 import { InputText } from 'primeng/inputtext';
 import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
+import { TicketService } from '@kanban/services/ticket.service';
 
 @Component({
     selector: 'app-kanban-column',
@@ -22,7 +23,16 @@ export class KanbanColumnComponent {
     @Input() column!: KanbanColumn;
     @Input() dropListIds: string[] = [];
 
+    newTicketCard: KanbanCard = {
+        id: Math.random().toString(36).substring(2, 7),
+        title: 'Nuevo Ticket',
+        description: null,
+    };
+
     items: MenuItem[] | undefined;
+
+    constructor(private ticketService: TicketService) {
+    }
 
     ngOnInit(){
         this.items = [
@@ -54,7 +64,8 @@ export class KanbanColumnComponent {
     }
 
     addCard() {
-        this.column.cards.push({ id: Math.random().toString(36).substring(2, 7), title: 'New Card' });
+        this.ticketService.setSelectedTicket(this.newTicketCard);
+        // this.column.cards.push({ id: Math.random().toString(36).substring(2, 7), title: 'New Card' });
     }
 
     private refreshColumn() {

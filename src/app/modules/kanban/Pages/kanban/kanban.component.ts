@@ -5,13 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { KanbanColumnComponent } from '@kanban/Components/kanban-column/kanban-column.component';
 import { KanbanColumn } from '@models/kanban/kanban-list.model';
+import { TicketFormComponent } from '@kanban/Components/ticket-form/ticket-form.component';
 
 @Component({
     selector: 'app-kanban',
     templateUrl: './kanban.component.html',
     styleUrls: ['./kanban.component.scss'],
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, CdkDropList, KanbanColumnComponent]
+    imports: [CommonModule, FormsModule, ButtonModule, CdkDropList, KanbanColumnComponent, TicketFormComponent]
 })
 export class KanbanComponent {
     columns: KanbanColumn[] = [
@@ -26,7 +27,8 @@ export class KanbanComponent {
                     progress: 25,
                     attachments: 2,
                     creationDate: new Date(),
-                    avatars: ['J', 'Q', 'R']
+                    avatars: ['J', 'Q', 'R'],
+                    closureDate: new Date(),
                 },
                 { id: '11', title: 'Task 2', description: 'Another task', attachments: 1, avatars: ['A', 'B'] }
             ]
