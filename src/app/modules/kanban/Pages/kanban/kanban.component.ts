@@ -6,6 +6,10 @@ import { ButtonModule } from 'primeng/button';
 import { KanbanColumnComponent } from '@kanban/Components/kanban-column/kanban-column.component';
 import { KanbanColumn } from '@models/kanban/kanban-list.model';
 import { TicketFormComponent } from '@kanban/Components/ticket-form/ticket-form.component';
+import { CatalogoServiceService } from '@kanban/services/catalogo.service.service';
+import { TicketService } from '@kanban/services/ticket.service';
+import { TicketResponse } from '@models/ticket/ticket-response.model';
+import { KanbanCard } from '@models/kanban/kanban-card.model';
 
 @Component({
     selector: 'app-kanban',
@@ -15,35 +19,49 @@ import { TicketFormComponent } from '@kanban/Components/ticket-form/ticket-form.
     imports: [CommonModule, FormsModule, ButtonModule, CdkDropList, KanbanColumnComponent, TicketFormComponent]
 })
 export class KanbanComponent {
-    columns: KanbanColumn[] = [
-        {
-            id: '1',
-            title: 'Backlog',
-            cards: [
-                {
-                    id: '22',
-                    title: 'Actualizacion de antivirus en computadoras de la contable',
-                    description: 'Some description',
-                    progress: 25,
-                    attachments: 2,
-                    creationDate: new Date(),
-                    avatars: ['J', 'Q', 'R'],
-                    closureDate: new Date(),
-                },
-                { id: '11', title: 'Task 2', description: 'Another task', attachments: 1, avatars: ['A', 'B'] }
-            ]
-        },
-        {
-            id: '2',
-            title: 'In Progress',
-            cards: []
-        }
-    ];
+    columns: KanbanColumn[] = [];
 
-    ngOnInit() {
-        console.log(this.columns);
+    constructor(
+        private ticketService: TicketService,
+        private catalogo: CatalogoServiceService
+    ) {
     }
 
+    ngOnInit() {
+        // 1) Inicializa las columnas según los “estados” disponibles
+        const estados = this.catalogo.estados();
+        this.columns = estados.map(e => ({
+            id: e.code.toString(),
+            title: e.name,
+            cards: []
+        }));
+
+        // 2) Trae todos los tickets y los coloca en la columna correspondiente
+        this.ticketService.listTickets().subscribe((tickets: TicketResponse[]) => {
+            tickets.forEach(t => {
+                const col = this.columns.find(c => c.id === t.estado.id.toString());
+                if (col) {
+                    col.cards.push(this.mapToKanbanCard(t));
+                }
+            });
+        });
+    }
+
+    // 3) Función de ayuda que convierte el DTO de backend en tu KanbanCard
+    private mapToKanbanCard(t: TicketResponse): KanbanCard {
+        return {
+            id: t.id,
+            title: t.titulo,
+            description: t.descripcion,
+            creationDate: new Date(t.fechaCreacion),
+            closureDate: t.fechaCierre ? new Date(t.fechaCierre) : undefined,
+            attachments: t.comments?.length || 0,
+            avatars: [ t.createdBy.createdByUserName.charAt(0) ],
+            orderInBoard: t.ordenEnTablero ?? 0,
+            stateCode: t.estado.id,
+            priorityCode: t.prioridad.id
+        };
+    }
 
     onDropColumn(event: CdkDragDrop<KanbanColumn[]>) {
         moveItemInArray(this.columns, event.previousIndex, event.currentIndex);
@@ -59,5 +77,17 @@ export class KanbanComponent {
 
     get dropListIds(): string[] {
         return this.columns.map((column) => column.id);
+    }
+
+    onTicketCreated(ticket: TicketResponse) {
+        const colId = ticket.estado.id.toString();
+        const column = this.columns.find(c => c.id === colId)!;
+
+        // Inserta el KanbanCard en la posición según su orden
+        const card = this.mapToKanbanCard(ticket);
+        column.cards.push(card);
+
+        // Reordena la columna antes de renderizar
+        column.cards.sort((a, b) => (a.orderInBoard! - b.orderInBoard!));
     }
 }

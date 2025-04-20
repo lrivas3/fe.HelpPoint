@@ -1,15 +1,59 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { KanbanCard } from '@models/kanban/kanban-card.model';
+import { TicketRequest } from '@models/ticket/ticket-request.model';
+import { TicketResponse } from '@models/ticket/ticket-response.model';
+import { environment } from '@environments/environment';
+import { checkToken } from '@interceptors/token.interceptor';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class TicketService {
+    apiUrl = environment.API_URL;
+    private readonly baseUrl = this.apiUrl + '/api/v1/tickets';
+
+    /** Señal para el ticket seleccionado en el formulario */
     selectedTicket: WritableSignal<KanbanCard | null> = signal(null);
+
+    constructor(private readonly http: HttpClient) {}
+
+    /** Establece el ticket actual y muestra el formulario */
     setSelectedTicket(ticket: KanbanCard): void {
         this.selectedTicket.set(ticket);
     }
+
+    /** Limpia el ticket seleccionado y cierra el formulario */
     clearSelectedTicket(): void {
         this.selectedTicket.set(null);
+    }
+
+    /** Crea un nuevo ticket en el backend */
+
+
+
+
+
+    createTicket(request: TicketRequest): Observable<TicketResponse> {
+        return this.http.post<TicketResponse>(this.baseUrl,
+            request,
+            { context: checkToken() }
+        );
+    }
+
+    /** Obtiene un ticket por su ID */
+    getTicket(id: string): Observable<TicketResponse> {
+        return this.http.get<TicketResponse>(`${this.baseUrl}/${id}`);
+    }
+
+    /** Obtiene la lista de tickets */
+    listTickets(): Observable<TicketResponse[]> {
+        return this.http.get<TicketResponse[]>(this.baseUrl);
+    }
+
+    /** Actualiza un ticket existente */
+    updateTicket(id: string, request: Partial<TicketRequest>): Observable<TicketResponse> {
+        return this.http.put<TicketResponse>(`${this.baseUrl}/${id}`, request);
     }
 }

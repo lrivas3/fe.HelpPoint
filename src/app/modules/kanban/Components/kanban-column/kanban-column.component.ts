@@ -11,6 +11,7 @@ import { InputText } from 'primeng/inputtext';
 import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { TicketService } from '@kanban/services/ticket.service';
+import { TicketResponse } from '@models/ticket/ticket-response.model';
 
 @Component({
     selector: 'app-kanban-column',
@@ -22,12 +23,6 @@ import { TicketService } from '@kanban/services/ticket.service';
 export class KanbanColumnComponent {
     @Input() column!: KanbanColumn;
     @Input() dropListIds: string[] = [];
-
-    newTicketCard: KanbanCard = {
-        id: Math.random().toString(36).substring(2, 7),
-        title: 'Nuevo Ticket',
-        description: null,
-    };
 
     items: MenuItem[] | undefined;
 
@@ -54,22 +49,68 @@ export class KanbanColumnComponent {
         ];
     }
 
+    private refreshColumn() {
+        this.ticketService.listTickets().subscribe(tickets => {
+            // Limpia la columna
+            this.column.cards = [];
+            // Vuelve a filtrar para este estado
+            tickets
+                .filter(t => t.estado.id.toString() === this.column.id)
+                .forEach(t => this.column.cards.push(this.mapToKanbanCard(t)));
+        });
+    }
+
+    // 3) Función de ayuda que convierte el DTO de backend en tu KanbanCard
+    private mapToKanbanCard(t: TicketResponse): KanbanCard {
+        return {
+            id: t.id,
+            title: t.titulo,
+            description: t.descripcion,
+            creationDate: new Date(t.fechaCreacion),
+            closureDate: t.fechaCierre ? new Date(t.fechaCierre) : undefined,
+            attachments: t.comments?.length || 0,
+            avatars: [ t.createdBy.createdByUserName.charAt(0) ],
+            orderInBoard: t.ordenEnTablero ?? 0,
+            stateCode: t.estado.id,
+            priorityCode: t.prioridad.id
+        };
+    }
+
     onCardDrop(event: CdkDragDrop<KanbanCard[]>) {
         if (event.previousContainer === event.container) {
             moveItemInArray(this.column.cards, event.previousIndex, event.currentIndex);
         } else {
-            const prevColumn = event.previousContainer.data as KanbanCard[];
-            transferArrayItem(prevColumn, this.column.cards, event.previousIndex, event.currentIndex);
+            transferArrayItem(
+                event.previousContainer.data,
+                this.column.cards,
+                event.previousIndex,
+                event.currentIndex
+            );
         }
+
+        // 1) Reasigna orderInBoard según nueva posición
+        this.column.cards.forEach((card, idx) => card.orderInBoard = idx);
+
+        // 2) Envía actualización de orden para cada tarjeta
+        this.column.cards.forEach(card => {
+            this.ticketService.updateTicket(card.id, { ordenEnTablero: card.orderInBoard! })
+                .subscribe({
+                    next: () => {/* opcional: toast de éxito */},
+                    error: e => console.error('No se pudo actualizar orden', e)
+                });
+        });
     }
 
     addCard() {
-        this.ticketService.setSelectedTicket(this.newTicketCard);
-        // this.column.cards.push({ id: Math.random().toString(36).substring(2, 7), title: 'New Card' });
-    }
-
-    private refreshColumn() {
-
+        const newCard: KanbanCard = {
+            id: '', // lo genera el servidor
+            title: '',
+            description: null,
+            stateCode: +this.column.id, // importante para enviar estado
+            orderInBoard: this.column.cards.length,
+            // … demás propiedades…
+        };
+        this.ticketService.setSelectedTicket(newCard);
     }
 
     private deleteColumn() {

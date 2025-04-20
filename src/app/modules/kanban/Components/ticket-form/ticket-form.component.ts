@@ -1,4 +1,4 @@
-import { Component, effect } from '@angular/core';
+import { Component, effect, Output, EventEmitter } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { Button } from 'primeng/button';
 import { TicketService } from '@kanban/services/ticket.service';
@@ -14,6 +14,10 @@ import { Tag } from 'primeng/tag';
 import { Avatar } from 'primeng/avatar';
 import { InputText } from 'primeng/inputtext';
 import { Textarea } from 'primeng/textarea';
+import { TicketResponse } from '@models/ticket/ticket-response.model';
+import { TicketRequest } from '@models/ticket/ticket-request.model';
+import { ToastService } from '@services/toast.service';
+import { ToastSeverity } from '@models/toast-severity';
 
 @Component({
     selector: 'app-ticket-form',
@@ -23,54 +27,71 @@ import { Textarea } from 'primeng/textarea';
     styleUrl: './ticket-form.component.scss'
 })
 export class TicketFormComponent {
+    @Output() ticketCreated = new EventEmitter<TicketResponse>();
     visible: boolean = false;
+    defaultStateCode: number = 1;
+    defaultPriorityCode: number = 2;
+    defaultTipoId: number = 1;
+
     selectedTicket: KanbanCard = {
         id: '',
         title: '',
         description: null,
-        stateCode: null,
-        priorityCode: null,
+        stateCode: this.defaultStateCode,
+        priorityCode: this.defaultPriorityCode,
+        tipoId: this.defaultTipoId,
         creationDate: null,
         closureDate: null,
-        tags: []
+        tags: [],
+        orderInBoard: 0
     };
 
     priorityOptions: PSelectableModel[] = [];
     comments: any;
+
     constructor(
-        private ticketService: TicketService,
-        public catalogoService: CatalogoServiceService
+        private readonly ticketService: TicketService,
+        public catalogoService: CatalogoServiceService,
+        private readonly toastService: ToastService
     ) {
         effect(() => {
             const ticket = this.ticketService.selectedTicket();
             if (ticket) {
                 this.selectedTicket = ticket;
                 this.showDialog();
-            } else {
-                this.selectedTicket = {
-                    id: '',
-                    title: '',
-                    description: null,
-                    stateCode: null,
-                    priorityCode: null,
-                    creationDate: null,
-                    closureDate: null,
-                    tags: []
-                };
             }
         });
     }
+
     showDialog() {
         this.visible = true;
     }
 
     saveTicket(): void {
-        console.log('saving ticket', this.selectedTicket);
+        const req: TicketRequest = {
+            ordenEnTablero: this.selectedTicket.orderInBoard,
+            titulo: this.selectedTicket.title,
+            descripcion: this.selectedTicket.description ?? undefined,
+            estadoId: Number(this.selectedTicket.stateCode) || this.defaultStateCode,
+            tipoId: this.selectedTicket.tipoId || this.defaultStateCode,
+            prioridadId: this.selectedTicket.priorityCode! || this.defaultPriorityCode,
+            supportRequestId: undefined,
+        };
 
-        // this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(this.selectedTicket.description);
-        this.visible = false;
-        this.ticketService.clearSelectedTicket();
+        this.ticketService.createTicket(req).subscribe({
+            next: (t: TicketResponse) => {
+                this.ticketCreated.emit(t);
+                this.visible = false;
+                this.ticketService.clearSelectedTicket();
+                this.toastService.show(ToastSeverity.Success, 'Éxito', 'Ticket creado exitosamente');
+            },
+            error: err => {
+                console.error('Error al crear ticket', err);
+                this.toastService.show(ToastSeverity.Error, 'Error', 'Error al crear el ticket. Por favor, intente nuevamente.');
+            }
+        });
     }
+
     cancel(): void {
         this.visible = false;
         this.ticketService.clearSelectedTicket();
