@@ -56,6 +56,9 @@ export class KanbanComponent implements OnInit {
         this.ticketService.listTickets().subscribe({
             next: (tickets) => {
                 console.log('Tickets recibidos:', tickets);
+                // Limpiamos las columnas antes de asignar los nuevos tickets
+                this.columns.forEach(col => col.cards = []);
+                
                 tickets.forEach(ticket => {
                     const column = this.columns.find(col => col.id === ticket.stateCode.toString());
                     if (column) {

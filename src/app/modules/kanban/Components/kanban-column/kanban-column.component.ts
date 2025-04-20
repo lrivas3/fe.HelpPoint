@@ -24,7 +24,6 @@ export class KanbanColumnComponent {
     private _column!: KanbanColumn;
     
     @Input() set column(value: KanbanColumn) {
-        console.log('Setting column:', value);
         this._column = value;
     }
     get column(): KanbanColumn {
@@ -35,18 +34,10 @@ export class KanbanColumnComponent {
     items: MenuItem[] | undefined;
 
     constructor(private readonly ticketService: TicketService) {
-    }
-
-    ngOnInit(){
         this.items = [
             {
                 label: 'Opciones',
                 items: [
-                    {
-                        label: 'Refrescar',
-                        icon: 'pi pi-refresh',
-                        command: () => this.refreshColumn()
-                    },
                     {
                         label: 'Eliminar',
                         icon: 'pi pi-trash',
@@ -55,29 +46,6 @@ export class KanbanColumnComponent {
                 ]
             }
         ];
-    }
-
-    private refreshColumn() {
-        console.log('Refreshing column:', this.column);
-        this.ticketService.listTickets().subscribe({
-            next: (tickets) => {
-                console.log('Received tickets:', tickets);
-                // Limpia la columna
-                this.column.cards = [];
-                // Vuelve a filtrar para este estado
-                const filteredTickets = tickets.filter(t => t.stateCode.toString() === this.column.id);
-                console.log('Filtered tickets for column:', filteredTickets);
-                filteredTickets.forEach(t => {
-                    const card = this.mapToKanbanCard(t);
-                    console.log('Mapped card:', card);
-                    this.column.cards.push(card);
-                });
-                console.log('Updated column cards:', this.column.cards);
-            },
-            error: (error) => {
-                console.error('Error refreshing column:', error);
-            }
-        });
     }
 
     // 3) Función de ayuda que convierte el DTO de backend en tu KanbanCard
@@ -126,9 +94,10 @@ export class KanbanColumnComponent {
             id: '', // lo genera el servidor
             title: '',
             description: null,
-            stateCode: +this.column.id, // importante para enviar estado
+            stateCode: +this.column.id, // Usamos el ID de la columna actual como stateCode
             orderInBoard: this.column.cards.length,
-            // … demás propiedades…
+            tags: [],
+            avatars: []
         };
         this.ticketService.setSelectedTicket(newCard);
     }

@@ -73,10 +73,6 @@ export class TicketFormComponent {
             return;
         }
 
-        if (!this.selectedTicket.stateCode) {
-            this.selectedTicket.stateCode = this.defaultStateCode;
-        }
-
         if (!this.selectedTicket.priorityCode) {
             this.selectedTicket.priorityCode = this.defaultPriorityCode;
         }
