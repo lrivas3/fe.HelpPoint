@@ -10,15 +10,26 @@ import { tap } from 'rxjs/operators';
 export class CatalogoServiceService {
     apiUrl = environment.API_URL;
     estados: WritableSignal<PSelectableModel[]> = signal([]);
-    constructor(private http: HttpClient) { }
 
-    getEstados(){
-        this.http.get<PSelectableModel[]>(`${this.apiUrl}/api/v1/estados`).pipe(
+    constructor(private http: HttpClient) {
+        this.loadEstados();
+    }
+
+    loadEstados() {
+        this.http.get<PSelectableModel[]>(`${this.apiUrl}/api/v1/catalogo/estados`).pipe(
             tap(estados => {
-                    this.estados.set(estados);
-                }
-            )
-        ).subscribe();
+                console.log('Estados cargados:', estados);
+                this.estados.set(estados);
+            })
+        ).subscribe({
+            error: (error) => {
+                console.error('Error al cargar estados:', error);
+            }
+        });
+    }
+
+    getEstados() {
+        return this.estados();
     }
 
     getCatalogo() {

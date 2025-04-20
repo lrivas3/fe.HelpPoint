@@ -28,28 +28,49 @@ export class KanbanComponent {
     }
 
     ngOnInit() {
-        // 1) Inicializa las columnas según los “estados” disponibles
-        const estados = this.catalogo.estados();
+        // 1) Inicializa las columnas según los "estados" disponibles
+        const estados = this.catalogo.getEstados();
+        console.log('Estados disponibles:', estados);
+        
+        if (!estados || estados.length === 0) {
+            console.warn('No hay estados disponibles');
+            return;
+        }
+
         this.columns = estados.map(e => ({
             id: e.code.toString(),
             title: e.name,
             cards: []
         }));
+        console.log('Columnas inicializadas:', this.columns);
 
         // 2) Trae todos los tickets y los coloca en la columna correspondiente
-        this.ticketService.listTickets().subscribe((tickets: TicketResponse[]) => {
-            tickets.forEach(t => {
-                const col = this.columns.find(c => c.id === t.estado.id.toString());
-                if (col) {
-                    col.cards.push(this.mapToKanbanCard(t));
-                }
-            });
+        this.ticketService.listTickets().subscribe({
+            next: (tickets: TicketResponse[]) => {
+                console.log('Tickets recibidos:', tickets);
+                tickets.forEach(t => {
+                    if (!t.estado || !t.estado.id) {
+                        console.warn('Ticket sin estado válido:', t);
+                        return;
+                    }
+                    const col = this.columns.find(c => c.id === t.estado.id.toString());
+                    if (col) {
+                        col.cards.push(this.mapToKanbanCard(t));
+                    } else {
+                        console.warn(`No se encontró la columna para el estado ${t.estado.id}`);
+                    }
+                });
+            },
+            error: (error) => {
+                console.error('Error al obtener tickets:', error);
+            }
         });
     }
 
     // 3) Función de ayuda que convierte el DTO de backend en tu KanbanCard
     private mapToKanbanCard(t: TicketResponse): KanbanCard {
-        return {
+        console.log('Mapping ticket to KanbanCard:', t);
+        const card = {
             id: t.id,
             title: t.titulo,
             description: t.descripcion,
@@ -59,8 +80,11 @@ export class KanbanComponent {
             avatars: [ t.createdBy.createdByUserName.charAt(0) ],
             orderInBoard: t.ordenEnTablero ?? 0,
             stateCode: t.estado.id,
-            priorityCode: t.prioridad.id
+            priorityCode: t.prioridad.id,
+            tipoId: t.tipo.id
         };
+        console.log('Mapped KanbanCard:', card);
+        return card;
     }
 
     onDropColumn(event: CdkDragDrop<KanbanColumn[]>) {
@@ -80,8 +104,18 @@ export class KanbanComponent {
     }
 
     onTicketCreated(ticket: TicketResponse) {
+        if (!ticket.estado || !ticket.estado.id) {
+            console.warn('Ticket creado sin estado válido:', ticket);
+            return;
+        }
+
         const colId = ticket.estado.id.toString();
-        const column = this.columns.find(c => c.id === colId)!;
+        const column = this.columns.find(c => c.id === colId);
+        
+        if (!column) {
+            console.warn(`No se encontró la columna para el estado ${ticket.estado.id}`);
+            return;
+        }
 
         // Inserta el KanbanCard en la posición según su orden
         const card = this.mapToKanbanCard(ticket);

@@ -21,7 +21,15 @@ import { TicketResponse } from '@models/ticket/ticket-response.model';
     imports: [CommonModule, FormsModule, ButtonModule, InplaceModule, CdkDropList, KanbanCardComponent, InputText, Menu]
 })
 export class KanbanColumnComponent {
-    @Input() column!: KanbanColumn;
+    private _column!: KanbanColumn;
+    
+    @Input() set column(value: KanbanColumn) {
+        console.log('Setting column:', value);
+        this._column = value;
+    }
+    get column(): KanbanColumn {
+        return this._column;
+    }
     @Input() dropListIds: string[] = [];
 
     items: MenuItem[] | undefined;

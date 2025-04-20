@@ -73,18 +73,36 @@ export class TicketFormComponent {
             return;
         }
 
+        if (!this.selectedTicket.stateCode) {
+            this.selectedTicket.stateCode = this.defaultStateCode;
+        }
+
+        if (!this.selectedTicket.priorityCode) {
+            this.selectedTicket.priorityCode = this.defaultPriorityCode;
+        }
+
+        if (!this.selectedTicket.tipoId) {
+            this.selectedTicket.tipoId = this.defaultTipoId;
+        }
+
         const req: TicketRequest = {
             ordenEnTablero: this.selectedTicket.orderInBoard,
             titulo: this.selectedTicket.title,
             descripcion: this.selectedTicket.description ?? undefined,
-            estadoId: Number(this.selectedTicket.stateCode) || this.defaultStateCode,
-            tipoId: this.selectedTicket.tipoId || this.defaultStateCode,
-            prioridadId: this.selectedTicket.priorityCode! || this.defaultPriorityCode,
+            estadoId: Number(this.selectedTicket.stateCode),
+            tipoId: Number(this.selectedTicket.tipoId),
+            prioridadId: Number(this.selectedTicket.priorityCode),
             supportRequestId: undefined,
         };
 
+        console.log('Creando ticket con request:', req);
+
         this.ticketService.createTicket(req).subscribe({
             next: (t: TicketResponse) => {
+                console.log('Ticket creado:', t);
+                if (!t.estado || !t.tipo || !t.prioridad) {
+                    console.warn('El ticket fue creado pero falta información de estado, tipo o prioridad');
+                }
                 this.ticketCreated.emit(t);
                 this.visible = false;
                 this.ticketService.clearSelectedTicket();

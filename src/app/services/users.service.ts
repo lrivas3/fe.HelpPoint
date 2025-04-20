@@ -21,6 +21,6 @@ export class UsersService {
   }
 
   getProfile() {
-    return this.http.get<User>(`${this.apiUrl}/api/v1/user/profile`);
+    return this.http.get<User>(`${this.apiUrl}/api/v1/users/profile`);
   }
 }

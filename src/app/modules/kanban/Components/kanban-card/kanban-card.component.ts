@@ -25,8 +25,16 @@ import { TicketService } from '@kanban/services/ticket.service';
     styleUrl: './kanban-card.component.scss'
 })
 export class KanbanCardComponent implements OnInit {
+    @Input() set ticketCard(value: KanbanCard) {
+        console.log('Setting ticket card:', value);
+        this._ticketCard = value;
+    }
+    get ticketCard(): KanbanCard {
+        return this._ticketCard;
+    }
+    private _ticketCard!: KanbanCard;
+
     constructor(private toastService: ToastService, private ticketService: TicketService) {}
-    @Input() ticketCard!: KanbanCard;
     items: MenuItem[] | undefined;
     elementHeight: number = 50;
     openTicketForm(): void {
@@ -35,6 +43,7 @@ export class KanbanCardComponent implements OnInit {
 
     removeTag(ticketCard: KanbanCard, success: string) {}
     ngOnInit() {
+        console.log('KanbanCardComponent initialized with ticket:', this.ticketCard);
         console.log(this.ticketCard);
         this.items = [
             {
