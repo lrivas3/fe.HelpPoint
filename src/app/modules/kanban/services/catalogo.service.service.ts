@@ -16,6 +16,7 @@ export class CatalogoServiceService {
     }
 
     loadEstados() {
+        console.log('Cargando estados desde:', `${this.apiUrl}/api/v1/catalogo/estados`);
         this.http.get<PSelectableModel[]>(`${this.apiUrl}/api/v1/catalogo/estados`).pipe(
             tap(estados => {
                 console.log('Estados cargados:', estados);

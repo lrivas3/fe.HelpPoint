@@ -17,15 +17,17 @@ export interface ComentResponse {
 
 export interface TicketResponse {
     id: string;
-    ordenEnTablero?: number;
-    titulo: string;
-    descripcion?: string;
-    estado: LookUpResponse;
-    tipo: LookUpResponse;
-    prioridad: LookUpResponse;
-    fechaCreacion: string;
-    fechaCierre?: string;
-    supportRequestId?: string;
-    createdBy: UserLookUpResponse;
-    comments: ComentResponse[];
+    title: string;
+    description?: string | null;
+    stateCode: number;
+    tipoId?: number | null;
+    priorityCode?: number | null;
+    creationDate?: string | null;
+    closureDate?: string | null;
+    orderInBoard: number;
+    tags: string[];
+    progress?: number | null;
+    checklist?: string | null;
+    attachments?: number | null;
+    avatars: string[];
 }

@@ -86,12 +86,12 @@ export class TicketFormComponent {
         }
 
         const req: TicketRequest = {
-            ordenEnTablero: this.selectedTicket.orderInBoard,
-            titulo: this.selectedTicket.title,
-            descripcion: this.selectedTicket.description ?? undefined,
-            estadoId: Number(this.selectedTicket.stateCode),
+            orderInBoard: this.selectedTicket.orderInBoard,
+            title: this.selectedTicket.title,
+            description: this.selectedTicket.description ?? undefined,
+            stateCode: Number(this.selectedTicket.stateCode),
             tipoId: Number(this.selectedTicket.tipoId),
-            prioridadId: Number(this.selectedTicket.priorityCode),
+            priorityCode: Number(this.selectedTicket.priorityCode),
             supportRequestId: undefined,
         };
 
@@ -100,9 +100,6 @@ export class TicketFormComponent {
         this.ticketService.createTicket(req).subscribe({
             next: (t: TicketResponse) => {
                 console.log('Ticket creado:', t);
-                if (!t.estado || !t.tipo || !t.prioridad) {
-                    console.warn('El ticket fue creado pero falta información de estado, tipo o prioridad');
-                }
                 this.ticketCreated.emit(t);
                 this.visible = false;
                 this.ticketService.clearSelectedTicket();

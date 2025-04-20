@@ -34,7 +34,7 @@ export class KanbanColumnComponent {
 
     items: MenuItem[] | undefined;
 
-    constructor(private ticketService: TicketService) {
+    constructor(private readonly ticketService: TicketService) {
     }
 
     ngOnInit(){
@@ -58,13 +58,25 @@ export class KanbanColumnComponent {
     }
 
     private refreshColumn() {
-        this.ticketService.listTickets().subscribe(tickets => {
-            // Limpia la columna
-            this.column.cards = [];
-            // Vuelve a filtrar para este estado
-            tickets
-                .filter(t => t.estado.id.toString() === this.column.id)
-                .forEach(t => this.column.cards.push(this.mapToKanbanCard(t)));
+        console.log('Refreshing column:', this.column);
+        this.ticketService.listTickets().subscribe({
+            next: (tickets) => {
+                console.log('Received tickets:', tickets);
+                // Limpia la columna
+                this.column.cards = [];
+                // Vuelve a filtrar para este estado
+                const filteredTickets = tickets.filter(t => t.stateCode.toString() === this.column.id);
+                console.log('Filtered tickets for column:', filteredTickets);
+                filteredTickets.forEach(t => {
+                    const card = this.mapToKanbanCard(t);
+                    console.log('Mapped card:', card);
+                    this.column.cards.push(card);
+                });
+                console.log('Updated column cards:', this.column.cards);
+            },
+            error: (error) => {
+                console.error('Error refreshing column:', error);
+            }
         });
     }
 
@@ -72,40 +84,40 @@ export class KanbanColumnComponent {
     private mapToKanbanCard(t: TicketResponse): KanbanCard {
         return {
             id: t.id,
-            title: t.titulo,
-            description: t.descripcion,
-            creationDate: new Date(t.fechaCreacion),
-            closureDate: t.fechaCierre ? new Date(t.fechaCierre) : undefined,
-            attachments: t.comments?.length || 0,
-            avatars: [ t.createdBy.createdByUserName.charAt(0) ],
-            orderInBoard: t.ordenEnTablero ?? 0,
-            stateCode: t.estado.id,
-            priorityCode: t.prioridad.id
+            title: t.title,
+            description: t.description ?? null,
+            stateCode: t.stateCode,
+            tipoId: t.tipoId ?? undefined,
+            priorityCode: t.priorityCode ?? undefined,
+            creationDate: t.creationDate ? new Date(t.creationDate) : null,
+            closureDate: t.closureDate ? new Date(t.closureDate) : undefined,
+            orderInBoard: t.orderInBoard,
+            tags: t.tags ?? [],
+            progress: t.progress ?? undefined,
+            checklist: t.checklist ?? undefined,
+            attachments: t.attachments ?? 0,
+            avatars: t.avatars ?? []
         };
     }
 
     onCardDrop(event: CdkDragDrop<KanbanCard[]>) {
         if (event.previousContainer === event.container) {
-            moveItemInArray(this.column.cards, event.previousIndex, event.currentIndex);
+            moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else {
             transferArrayItem(
                 event.previousContainer.data,
-                this.column.cards,
+                event.container.data,
                 event.previousIndex,
                 event.currentIndex
             );
         }
 
-        // 1) Reasigna orderInBoard según nueva posición
-        this.column.cards.forEach((card, idx) => card.orderInBoard = idx);
-
-        // 2) Envía actualización de orden para cada tarjeta
-        this.column.cards.forEach(card => {
-            this.ticketService.updateTicket(card.id, { ordenEnTablero: card.orderInBoard! })
-                .subscribe({
-                    next: () => {/* opcional: toast de éxito */},
-                    error: e => console.error('No se pudo actualizar orden', e)
-                });
+        // Actualizar el orden en el backend
+        event.container.data.forEach((card, index) => {
+            this.ticketService.updateTicket(card.id, { orderInBoard: index }).subscribe({
+                next: () => console.log(`Orden actualizado para el ticket ${card.id}`),
+                error: (err) => console.error(`Error al actualizar el orden del ticket ${card.id}:`, err)
+            });
         });
     }
 

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, effect } from '@angular/core';
 import { CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { CatalogoServiceService } from '@kanban/services/catalogo.service.servic
 import { TicketService } from '@kanban/services/ticket.service';
 import { TicketResponse } from '@models/ticket/ticket-response.model';
 import { KanbanCard } from '@models/kanban/kanban-card.model';
+import { PSelectableModel } from '@models/prime-components-options/p-selectable.model';
 
 @Component({
     selector: 'app-kanban',
@@ -18,73 +19,75 @@ import { KanbanCard } from '@models/kanban/kanban-card.model';
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, CdkDropList, KanbanColumnComponent, TicketFormComponent]
 })
-export class KanbanComponent {
+export class KanbanComponent implements OnInit {
     columns: KanbanColumn[] = [];
 
     constructor(
         private ticketService: TicketService,
         private catalogo: CatalogoServiceService
     ) {
-    }
-
-    ngOnInit() {
-        // 1) Inicializa las columnas según los "estados" disponibles
-        const estados = this.catalogo.getEstados();
-        console.log('Estados disponibles:', estados);
-        
-        if (!estados || estados.length === 0) {
-            console.warn('No hay estados disponibles');
-            return;
-        }
-
-        this.columns = estados.map(e => ({
-            id: e.code.toString(),
-            title: e.name,
-            cards: []
-        }));
-        console.log('Columnas inicializadas:', this.columns);
-
-        // 2) Trae todos los tickets y los coloca en la columna correspondiente
-        this.ticketService.listTickets().subscribe({
-            next: (tickets: TicketResponse[]) => {
-                console.log('Tickets recibidos:', tickets);
-                tickets.forEach(t => {
-                    if (!t.estado || !t.estado.id) {
-                        console.warn('Ticket sin estado válido:', t);
-                        return;
-                    }
-                    const col = this.columns.find(c => c.id === t.estado.id.toString());
-                    if (col) {
-                        col.cards.push(this.mapToKanbanCard(t));
-                    } else {
-                        console.warn(`No se encontró la columna para el estado ${t.estado.id}`);
-                    }
-                });
-            },
-            error: (error) => {
-                console.error('Error al obtener tickets:', error);
+        // Observar cambios en los estados
+        effect(() => {
+            const estados = this.catalogo.estados();
+            console.log('Estados actualizados:', estados);
+            if (estados && estados.length > 0) {
+                this.initializeKanban();
+            } else {
+                console.warn('No hay estados disponibles, cargando...');
+                this.catalogo.loadEstados();
             }
         });
     }
 
-    // 3) Función de ayuda que convierte el DTO de backend en tu KanbanCard
-    private mapToKanbanCard(t: TicketResponse): KanbanCard {
-        console.log('Mapping ticket to KanbanCard:', t);
-        const card = {
-            id: t.id,
-            title: t.titulo,
-            description: t.descripcion,
-            creationDate: new Date(t.fechaCreacion),
-            closureDate: t.fechaCierre ? new Date(t.fechaCierre) : undefined,
-            attachments: t.comments?.length || 0,
-            avatars: [ t.createdBy.createdByUserName.charAt(0) ],
-            orderInBoard: t.ordenEnTablero ?? 0,
-            stateCode: t.estado.id,
-            priorityCode: t.prioridad.id,
-            tipoId: t.tipo.id
+    ngOnInit() {
+        // Forzar la carga inicial de estados
+        this.catalogo.loadEstados();
+    }
+
+    private initializeKanban() {
+        console.log('Estados disponibles:', this.catalogo.getEstados());
+        this.columns = this.catalogo.getEstados().map(estado => ({
+            id: estado.value.toString(),
+            title: estado.label,
+            cards: []
+        }));
+        console.log('Columnas inicializadas:', this.columns);
+
+        this.ticketService.listTickets().subscribe({
+            next: (tickets) => {
+                console.log('Tickets recibidos:', tickets);
+                tickets.forEach(ticket => {
+                    const column = this.columns.find(col => col.id === ticket.stateCode.toString());
+                    if (column) {
+                        column.cards.push(this.mapToKanbanCard(ticket));
+                    } else {
+                        console.warn(`No se encontró la columna para el stateCode ${ticket.stateCode}`);
+                    }
+                });
+            },
+            error: (error) => {
+                console.error('Error al cargar tickets:', error);
+            }
+        });
+    }
+
+    private mapToKanbanCard(ticket: TicketResponse): KanbanCard {
+        return {
+            id: ticket.id,
+            title: ticket.title,
+            description: ticket.description ?? undefined,
+            stateCode: ticket.stateCode,
+            tipoId: ticket.tipoId ?? undefined,
+            priorityCode: ticket.priorityCode ?? undefined,
+            creationDate: ticket.creationDate ? new Date(ticket.creationDate) : undefined,
+            closureDate: ticket.closureDate ? new Date(ticket.closureDate) : undefined,
+            tags: ticket.tags ?? [],
+            orderInBoard: ticket.orderInBoard ?? 0,
+            progress: ticket.progress ?? undefined,
+            checklist: ticket.checklist ?? undefined,
+            attachments: ticket.attachments ?? 0,
+            avatars: ticket.avatars ?? []
         };
-        console.log('Mapped KanbanCard:', card);
-        return card;
     }
 
     onDropColumn(event: CdkDragDrop<KanbanColumn[]>) {
@@ -104,16 +107,16 @@ export class KanbanComponent {
     }
 
     onTicketCreated(ticket: TicketResponse) {
-        if (!ticket.estado || !ticket.estado.id) {
-            console.warn('Ticket creado sin estado válido:', ticket);
+        if (!ticket.stateCode) {
+            console.warn('Ticket creado sin stateCode válido:', ticket);
             return;
         }
 
-        const colId = ticket.estado.id.toString();
+        const colId = ticket.stateCode.toString();
         const column = this.columns.find(c => c.id === colId);
         
         if (!column) {
-            console.warn(`No se encontró la columna para el estado ${ticket.estado.id}`);
+            console.warn(`No se encontró la columna para el stateCode ${ticket.stateCode}`);
             return;
         }
 
@@ -122,6 +125,6 @@ export class KanbanComponent {
         column.cards.push(card);
 
         // Reordena la columna antes de renderizar
-        column.cards.sort((a, b) => (a.orderInBoard! - b.orderInBoard!));
+        column.cards.sort((a, b) => (a.orderInBoard || 0) - (b.orderInBoard || 0));
     }
 }
