@@ -27,6 +27,6 @@ export class LoginComponent {
     protected readonly status = status;
 
     goToSupport() {
-        this.router.navigate(['/support/request']);
+        this.router.navigate(['']);
     }
 }

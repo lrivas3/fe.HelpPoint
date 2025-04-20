@@ -39,11 +39,12 @@
                     </span>
                 </div>
                 <label for="description" class="text-left mb-2">Descripción</label>
-                <p-editor
-                    id="description"
-                    [(ngModel)]="selectedTicket.description"
-                    [style]="{ height: '320px', width: '100%' }">
-                </p-editor>
+
+                <textarea rows="5" cols="30" pTextarea
+                          id="description"
+                          [(ngModel)]="selectedTicket.description"
+                          [style]="{ height: '320px', width: '100%' }"
+                ></textarea>
                 <!-- File upload area -->
                 <div class="border border-dashed border-gray-700 rounded p-4 mb-4 text-center">
                     <div class="flex items-center justify-center">

@@ -11,27 +11,13 @@ import { CatalogoServiceService } from '@kanban/services/catalogo.service.servic
 import { Select } from 'primeng/select';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { Tag } from 'primeng/tag';
-import { Editor } from 'primeng/editor';
 import { Avatar } from 'primeng/avatar';
 import { InputText } from 'primeng/inputtext';
+import { Textarea } from 'primeng/textarea';
 
 @Component({
     selector: 'app-ticket-form',
-    imports: [
-        Dialog,
-        Button,
-        FormsModule,
-        Divider,
-        DropdownModule,
-        Select,
-        DatePipe,
-        Tag,
-        Editor,
-        Avatar,
-        InputText,
-        NgForOf,
-        NgIf
-    ],
+    imports: [Dialog, Button, FormsModule, Divider, DropdownModule, Select, DatePipe, Tag, Avatar, InputText, NgForOf, NgIf, Textarea],
     templateUrl: './ticket-form.component.html',
     standalone: true,
     styleUrl: './ticket-form.component.scss'
@@ -51,9 +37,10 @@ export class TicketFormComponent {
 
     priorityOptions: PSelectableModel[] = [];
     comments: any;
-    constructor(private ticketService: TicketService,
-                public catalogoService: CatalogoServiceService,
-                ) {
+    constructor(
+        private ticketService: TicketService,
+        public catalogoService: CatalogoServiceService
+    ) {
         effect(() => {
             const ticket = this.ticketService.selectedTicket();
             if (ticket) {
@@ -78,19 +65,16 @@ export class TicketFormComponent {
     }
 
     saveTicket(): void {
-        console.log("saving ticket", this.selectedTicket);
+        console.log('saving ticket', this.selectedTicket);
 
         // this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(this.selectedTicket.description);
         this.visible = false;
         this.ticketService.clearSelectedTicket();
-
     }
     cancel(): void {
         this.visible = false;
         this.ticketService.clearSelectedTicket();
     }
 
-    removeTag(success: string) {
-
-    }
+    removeTag(success: string) {}
 }
