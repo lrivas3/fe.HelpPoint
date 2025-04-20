@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { environment } from '@environments/environment';
-import { checkToken } from '@interceptors/token.interceptor';
 import { User } from '@models/user.model';
 
 @Injectable({
@@ -14,13 +13,14 @@ export class UsersService {
   constructor(private http: HttpClient) {}
 
   getUsers() {
-    return this.http.get<User[]>(`${this.apiUrl}/api/v1/user`, {
-      context: checkToken(),
-    });
+    return this.http.get<User[]>(`${this.apiUrl}/api/v1/users`);
   }
+
+  getUserById(id: string) {
+    return this.http.get<User>(`${this.apiUrl}/api/v1/users/${id}`);
+  }
+
   getProfile() {
-      return this.http.get<User>(`${this.apiUrl}/api/v1/user/profile`, {
-          context: checkToken(),
-      })
+    return this.http.get<User>(`${this.apiUrl}/api/v1/user/profile`);
   }
 }

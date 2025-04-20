@@ -10,10 +10,10 @@ import { TokenService } from '@services/token.service';
 import { AuthService } from '@services/auth.service';
 import { inject } from '@angular/core';
 
-const CHECK_TOKEN = new HttpContextToken<boolean>(() => false);
+const SKIP_TOKEN_CHECK = new HttpContextToken<boolean>(() => false);
 
-export function checkToken() {
-    return new HttpContext().set(CHECK_TOKEN, true);
+export function skipTokenCheck() {
+    return new HttpContext().set(SKIP_TOKEN_CHECK, true);
 }
 
 export const tokenInterceptor = (
@@ -23,7 +23,7 @@ export const tokenInterceptor = (
     const tokenService = inject(TokenService);
     const authService = inject(AuthService);
 
-    if (req.context.get(CHECK_TOKEN)) {
+    if (!req.context.get(SKIP_TOKEN_CHECK)) {
         const isValidToken = tokenService.isValidToken();
         if (isValidToken) {
             return addToken(req, next, tokenService);

@@ -5,7 +5,6 @@ import { KanbanCard } from '@models/kanban/kanban-card.model';
 import { TicketRequest } from '@models/ticket/ticket-request.model';
 import { TicketResponse } from '@models/ticket/ticket-response.model';
 import { environment } from '@environments/environment';
-import { checkToken } from '@interceptors/token.interceptor';
 
 @Injectable({
     providedIn: 'root'
@@ -30,16 +29,8 @@ export class TicketService {
     }
 
     /** Crea un nuevo ticket en el backend */
-
-
-
-
-
-    createTicket(request: TicketRequest): Observable<TicketResponse> {
-        return this.http.post<TicketResponse>(this.baseUrl,
-            request,
-            { context: checkToken() }
-        );
+    createTicket(ticket: TicketRequest): Observable<TicketResponse> {
+        return this.http.post<TicketResponse>(`${this.apiUrl}/api/v1/tickets`, ticket);
     }
 
     /** Obtiene un ticket por su ID */

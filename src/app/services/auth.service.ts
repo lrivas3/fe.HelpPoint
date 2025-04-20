@@ -8,6 +8,7 @@ import { User } from '@models/user.model';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { UsersService } from '@services/users.service';
+import { skipTokenCheck } from '@interceptors/token.interceptor';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +31,8 @@ export class AuthService {
         return this.http.post<ResponseLogin>(`${this.apiUrl}/api/v1/auth/login`, {
             email,
             password
+        }, {
+            context: skipTokenCheck()
         })
             .pipe(
                 tap(response => {
@@ -40,7 +43,9 @@ export class AuthService {
     }
 
     refreshToken(refreshToken: string) {
-        return this.http.post<ResponseLogin>(`${this.apiUrl}/api/v1/auth/refresh-token`, {refreshToken})
+        return this.http.post<ResponseLogin>(`${this.apiUrl}/api/v1/auth/refresh-token`, {refreshToken}, {
+            context: skipTokenCheck()
+        })
             .pipe(
                 tap(response => {
                     this.tokenService.saveToken(response.token);
