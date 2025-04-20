@@ -68,6 +68,11 @@ export class TicketFormComponent {
     }
 
     saveTicket(): void {
+        if (!this.selectedTicket.title) {
+            this.toastService.show(ToastSeverity.Error, 'Error', 'El título es requerido');
+            return;
+        }
+
         const req: TicketRequest = {
             ordenEnTablero: this.selectedTicket.orderInBoard,
             titulo: this.selectedTicket.title,

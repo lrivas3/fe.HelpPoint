@@ -20,6 +20,16 @@
         <!-- Columna Izquierda (4/5 del ancho): Descripción -->
         <div class="w-4/5">
             <div class="flex flex-col gap-2 mb-4">
+                <!-- Campo de título -->
+                <div class="mb-4">
+                    <label for="title" class="text-left mb-2">Título</label>
+                    <input pInputText
+                           id="title"
+                           [(ngModel)]="selectedTicket.title"
+                           placeholder="Ingrese el título del ticket"
+                           [style]="{ width: '100%' }" />
+                </div>
+
                 <div class="pb-4">
                     <span class="text-surface-900 dark:text-surface-0 font-semibold">
                         <div class="tags flex gap-2 items-center">
