@@ -1,9 +1,19 @@
 export interface TicketRequest {
-    orderInBoard?: number;
-    title: string;
-    description?: string;
-    stateCode: number;
-    tipoId?: number;
-    priorityCode: number;
-    supportRequestId?: string;
+    OrdenEnTablero?: number;
+    Titulo: string;
+    Descripcion?: string;
+    EstadoId: number;
+    TipoId: number;
+    PrioridadId: number;
+    SupportRequestId?: string;
+}
+
+export interface PartialTicketRequest {
+    OrdenEnTablero?: number;
+    Titulo?: string;
+    Descripcion?: string;
+    EstadoId?: number;
+    TipoId?: number;
+    PrioridadId?: number;
+    SupportRequestId?: string;
 }

@@ -59,14 +59,26 @@ export class KanbanComponent implements OnInit {
                 // Limpiamos las columnas antes de asignar los nuevos tickets
                 this.columns.forEach(col => col.cards = []);
                 
-                tickets.forEach(ticket => {
-                    const column = this.columns.find(col => col.id === ticket.stateCode.toString());
-                    if (column) {
-                        column.cards.push(this.mapToKanbanCard(ticket));
-                    } else {
-                        console.warn(`No se encontró la columna para el stateCode ${ticket.stateCode}`);
-                    }
-                });
+                if (tickets && tickets.length > 0) {
+                    tickets.forEach(ticket => {
+                        // Check if ticket.Estado and ticket.Estado.Id exist
+                        if (ticket.Estado && ticket.Estado.Id !== undefined && ticket.Estado.Id !== null) {
+                            const column = this.columns.find(col => col.id === ticket.Estado.Id.toString());
+                            if (column) {
+                                const card = this.mapToKanbanCard(ticket);
+                                column.cards.push(card);
+                                console.log(`Ticket ${ticket.Id} agregado a la columna ${column.id}`);
+                            } else {
+                                console.warn(`No se encontró la columna para el estado ${ticket.Estado.Id}`);
+                            }
+                        } else {
+                            // Log a warning if a ticket has no valid Estado
+                            console.warn(`Ticket ${ticket.Id} no tiene un Estado válido o Estado.Id definido:`, ticket);
+                        }
+                    });
+                } else {
+                    console.warn('No se recibieron tickets del servidor');
+                }
             },
             error: (error) => {
                 console.error('Error al cargar tickets:', error);
@@ -76,20 +88,27 @@ export class KanbanComponent implements OnInit {
 
     private mapToKanbanCard(ticket: TicketResponse): KanbanCard {
         return {
-            id: ticket.id,
-            title: ticket.title,
-            description: ticket.description ?? undefined,
-            stateCode: ticket.stateCode,
-            tipoId: ticket.tipoId ?? undefined,
-            priorityCode: ticket.priorityCode ?? undefined,
-            creationDate: ticket.creationDate ? new Date(ticket.creationDate) : undefined,
-            closureDate: ticket.closureDate ? new Date(ticket.closureDate) : undefined,
-            tags: ticket.tags ?? [],
-            orderInBoard: ticket.orderInBoard ?? 0,
-            progress: ticket.progress ?? undefined,
-            checklist: ticket.checklist ?? undefined,
-            attachments: ticket.attachments ?? 0,
-            avatars: ticket.avatars ?? []
+            Id: ticket.Id,
+            Titulo: ticket.Titulo,
+            Descripcion: ticket.Descripcion ?? null,
+            Estado: {
+                Id: ticket.Estado.Id,
+                Nombre: ticket.Estado.Nombre
+            },
+            Tipo: {
+                Id: ticket.Tipo.Id,
+                Nombre: ticket.Tipo.Nombre
+            },
+            Prioridad: {
+                Id: ticket.Prioridad.Id,
+                Nombre: ticket.Prioridad.Nombre
+            },
+            FechaCreacion: ticket.FechaCreacion,
+            FechaCierre: ticket.FechaCierre ?? null,
+            OrdenEnTablero: ticket.OrdenEnTablero ?? 0,
+            SupportRequestId: ticket.SupportRequestId,
+            CreatedBy: ticket.CreatedBy,
+            Comments: ticket.Comments
         };
     }
 
@@ -110,16 +129,16 @@ export class KanbanComponent implements OnInit {
     }
 
     onTicketCreated(ticket: TicketResponse) {
-        if (!ticket.stateCode) {
-            console.warn('Ticket creado sin stateCode válido:', ticket);
+        if (!ticket.Estado?.Id) {
+            console.warn('Ticket creado sin Estado válido:', ticket);
             return;
         }
 
-        const colId = ticket.stateCode.toString();
+        const colId = ticket.Estado.Id.toString();
         const column = this.columns.find(c => c.id === colId);
         
         if (!column) {
-            console.warn(`No se encontró la columna para el stateCode ${ticket.stateCode}`);
+            console.warn(`No se encontró la columna para el estado ${ticket.Estado.Id}`);
             return;
         }
 
@@ -128,6 +147,6 @@ export class KanbanComponent implements OnInit {
         column.cards.push(card);
 
         // Reordena la columna antes de renderizar
-        column.cards.sort((a, b) => (a.orderInBoard || 0) - (b.orderInBoard || 0));
+        column.cards.sort((a, b) => (a.OrdenEnTablero || 0) - (b.OrdenEnTablero || 0));
     }
 }

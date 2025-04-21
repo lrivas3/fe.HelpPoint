@@ -1,18 +1,16 @@
+import { LookUpResponse, UserLookUpResponse, ComentResponse } from '@models/ticket/ticket-response.model';
+
 export interface KanbanCard {
-    id: string;
-    title: string;
-    description?: string | null;
-    stateCode: number;
-    tipoId?: number;
-    priorityCode?: number | null;
-    creationDate?: Date | null;
-    closureDate?: Date | null;
-    tags?: string[];
-
-    orderInBoard: number;
-
-    progress?: number;
-    checklist?: string;
-    attachments?: number;
-    avatars?: string[];
+    Id: string;
+    Titulo: string;
+    Descripcion: string | null;
+    Estado: LookUpResponse;
+    Tipo: LookUpResponse;
+    Prioridad: LookUpResponse;
+    FechaCreacion: string | null;
+    FechaCierre: string | null;
+    OrdenEnTablero: number;
+    SupportRequestId?: string;
+    CreatedBy: UserLookUpResponse;
+    Comments: ComentResponse[];
 }

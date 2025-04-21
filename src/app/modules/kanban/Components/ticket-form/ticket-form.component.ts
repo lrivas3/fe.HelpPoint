@@ -34,16 +34,18 @@ export class TicketFormComponent {
     defaultTipoId: number = 1;
 
     selectedTicket: KanbanCard = {
-        id: '',
-        title: '',
-        description: null,
-        stateCode: this.defaultStateCode,
-        priorityCode: this.defaultPriorityCode,
-        tipoId: this.defaultTipoId,
-        creationDate: null,
-        closureDate: null,
-        tags: [],
-        orderInBoard: 0
+        Id: '',
+        Titulo: '',
+        Descripcion: null,
+        Estado: { Id: this.defaultStateCode, Nombre: '' },
+        Tipo: { Id: this.defaultTipoId, Nombre: '' },
+        Prioridad: { Id: this.defaultPriorityCode, Nombre: '' },
+        FechaCreacion: null,
+        FechaCierre: null,
+        OrdenEnTablero: 0,
+        SupportRequestId: undefined,
+        CreatedBy: { CreatedByUserId: '', CreatedByUserName: '' },
+        Comments: []
     };
 
     priorityOptions: PSelectableModel[] = [];
@@ -68,27 +70,32 @@ export class TicketFormComponent {
     }
 
     saveTicket(): void {
-        if (!this.selectedTicket.title) {
+        if (!this.selectedTicket.Titulo) {
             this.toastService.show(ToastSeverity.Error, 'Error', 'El título es requerido');
             return;
         }
 
-        if (!this.selectedTicket.priorityCode) {
-            this.selectedTicket.priorityCode = this.defaultPriorityCode;
-        }
+        // Asegurarnos de que los IDs sean números
+        const estadoId = typeof this.selectedTicket.Estado.Id === 'string'
+            ? parseInt(this.selectedTicket.Estado.Id)
+            : this.selectedTicket.Estado.Id || this.defaultStateCode;
 
-        if (!this.selectedTicket.tipoId) {
-            this.selectedTicket.tipoId = this.defaultTipoId;
-        }
+        const prioridadId = typeof this.selectedTicket.Prioridad.Id === 'string'
+            ? parseInt(this.selectedTicket.Prioridad.Id)
+            : this.selectedTicket.Prioridad.Id || this.defaultPriorityCode;
+
+        const tipoId = typeof this.selectedTicket.Tipo.Id === 'string'
+            ? parseInt(this.selectedTicket.Tipo.Id)
+            : this.selectedTicket.Tipo.Id || this.defaultTipoId;
 
         const req: TicketRequest = {
-            orderInBoard: this.selectedTicket.orderInBoard,
-            title: this.selectedTicket.title,
-            description: this.selectedTicket.description ?? undefined,
-            stateCode: Number(this.selectedTicket.stateCode),
-            tipoId: Number(this.selectedTicket.tipoId),
-            priorityCode: Number(this.selectedTicket.priorityCode),
-            supportRequestId: undefined,
+            Titulo: this.selectedTicket.Titulo,
+            Descripcion: this.selectedTicket.Descripcion ?? undefined,
+            EstadoId: estadoId,
+            TipoId: tipoId,
+            PrioridadId: prioridadId,
+            OrdenEnTablero: this.selectedTicket.OrdenEnTablero,
+            SupportRequestId: this.selectedTicket.SupportRequestId
         };
 
         console.log('Creando ticket con request:', req);
@@ -114,4 +121,5 @@ export class TicketFormComponent {
     }
 
     removeTag(success: string) {}
+
 }

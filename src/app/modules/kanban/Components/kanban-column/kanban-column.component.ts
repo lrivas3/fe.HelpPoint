@@ -12,6 +12,7 @@ import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { TicketService } from '@kanban/services/ticket.service';
 import { TicketResponse } from '@models/ticket/ticket-response.model';
+import { PartialTicketRequest } from '@models/ticket/ticket-request.model';
 
 @Component({
     selector: 'app-kanban-column',
@@ -48,23 +49,29 @@ export class KanbanColumnComponent {
         ];
     }
 
-    // 3) Función de ayuda que convierte el DTO de backend en tu KanbanCard
     private mapToKanbanCard(t: TicketResponse): KanbanCard {
         return {
-            id: t.id,
-            title: t.title,
-            description: t.description ?? null,
-            stateCode: t.stateCode,
-            tipoId: t.tipoId ?? undefined,
-            priorityCode: t.priorityCode ?? undefined,
-            creationDate: t.creationDate ? new Date(t.creationDate) : null,
-            closureDate: t.closureDate ? new Date(t.closureDate) : undefined,
-            orderInBoard: t.orderInBoard,
-            tags: t.tags ?? [],
-            progress: t.progress ?? undefined,
-            checklist: t.checklist ?? undefined,
-            attachments: t.attachments ?? 0,
-            avatars: t.avatars ?? []
+            Id: t.Id,
+            Titulo: t.Titulo,
+            Descripcion: t.Descripcion ?? null,
+            Estado: {
+                Id: t.Estado.Id,
+                Nombre: t.Estado.Nombre
+            },
+            Tipo: {
+                Id: t.Tipo.Id,
+                Nombre: t.Tipo.Nombre
+            },
+            Prioridad: {
+                Id: t.Prioridad.Id,
+                Nombre: t.Prioridad.Nombre
+            },
+            FechaCreacion: t.FechaCreacion,
+            FechaCierre: t.FechaCierre ?? null,
+            OrdenEnTablero: t.OrdenEnTablero ?? 0,
+            SupportRequestId: t.SupportRequestId,
+            CreatedBy: t.CreatedBy,
+            Comments: t.Comments
         };
     }
 
@@ -82,32 +89,41 @@ export class KanbanColumnComponent {
 
         // Actualizar el orden en el backend
         event.container.data.forEach((card, index) => {
-            this.ticketService.updateTicket(card.id, { orderInBoard: index }).subscribe({
-                next: () => console.log(`Orden actualizado para el ticket ${card.id}`),
-                error: (err) => console.error(`Error al actualizar el orden del ticket ${card.id}:`, err)
+            const updateRequest: PartialTicketRequest = {
+                OrdenEnTablero: index,
+                EstadoId: parseInt(event.container.id)
+            };
+            this.ticketService.updateTicket(card.Id, updateRequest).subscribe({
+                next: () => console.log(`Orden actualizado para el ticket ${card.Id}`),
+                error: (err) => console.error(`Error al actualizar el orden del ticket ${card.Id}:`, err)
             });
         });
     }
 
     addCard() {
         const newCard: KanbanCard = {
-            id: '', // lo genera el servidor
-            title: '',
-            description: null,
-            stateCode: +this.column.id, // Usamos el ID de la columna actual como stateCode
-            orderInBoard: this.column.cards.length,
-            tags: [],
-            avatars: []
+            Id: '', // lo genera el servidor
+            Titulo: '',
+            Descripcion: null,
+            Estado: { Id: parseInt(this.column.id), Nombre: this.column.title },
+            Tipo: { Id: 1, Nombre: '' },
+            Prioridad: { Id: 2, Nombre: '' },
+            FechaCreacion: null,
+            FechaCierre: null,
+            OrdenEnTablero: this.column.cards.length,
+            SupportRequestId: undefined,
+            CreatedBy: { CreatedByUserId: '', CreatedByUserName: '' },
+            Comments: []
         };
         this.ticketService.setSelectedTicket(newCard);
     }
 
     private deleteColumn() {
-
+        // Implementar lógica de eliminación de columna
     }
 
     confirmEdit() {
-
+        // Implementar lógica de confirmación de edición
     }
 
     get connectedDropListIds(): string[] {

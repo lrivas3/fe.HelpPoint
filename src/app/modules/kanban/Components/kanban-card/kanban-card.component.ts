@@ -4,65 +4,71 @@ import { Avatar } from 'primeng/avatar';
 import { AvatarGroup } from 'primeng/avatargroup';
 import { Button } from 'primeng/button';
 import { CdkDrag, CdkDragHandle, CdkDragPlaceholder, CdkDragStart } from '@angular/cdk/drag-drop';
-import { DatePipe, NgForOf, NgIf, NgStyle, SlicePipe } from '@angular/common';
-import { ProgressBar } from 'primeng/progressbar';
+import { DatePipe, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { Tag } from 'primeng/tag';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
 import { ToastService } from '@services/toast.service';
 import { TicketService } from '@kanban/services/ticket.service';
+import { TicketFormComponent } from '../ticket-form/ticket-form.component';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
     selector: 'app-kanban-card',
     standalone: true,
     imports: [Avatar, AvatarGroup,
         Button, CdkDrag, CdkDragHandle,
-        NgForOf, NgIf, ProgressBar,
+        NgForOf, NgIf,
         Tag, Menu, DatePipe,
-        CdkDragPlaceholder, NgStyle,
-        SlicePipe ],
+        CdkDragPlaceholder, NgStyle],
     templateUrl: './kanban-card.component.html',
-    styleUrl: './kanban-card.component.scss'
+    styleUrl: './kanban-card.component.scss',
+    providers: [DialogService]
 })
 export class KanbanCardComponent implements OnInit {
-    @Input() set ticketCard(value: KanbanCard) {
-        console.log('Setting ticket card:', value);
-        this._ticketCard = value;
-    }
-    get ticketCard(): KanbanCard {
-        return this._ticketCard;
-    }
-    private _ticketCard!: KanbanCard;
+    @Input() ticketCard!: KanbanCard;
+    elementHeight: number = 0;
+    items: MenuItem[] = [];
 
-    constructor(private toastService: ToastService, private ticketService: TicketService) {}
-    items: MenuItem[] | undefined;
-    elementHeight: number = 50;
-    openTicketForm(): void {
-        this.ticketService.setSelectedTicket(this.ticketCard);
-    }
+    constructor(private toastService: ToastService, private ticketService: TicketService, private dialogService: DialogService) {}
 
-    removeTag(ticketCard: KanbanCard, success: string) {}
     ngOnInit() {
         console.log('KanbanCardComponent initialized with ticket:', this.ticketCard);
         console.log(this.ticketCard);
         this.items = [
             {
-                label: 'Opciones',
-                items: [
-                    {
-                        label: 'Eliminar',
-                        icon: 'pi pi-trash',
-                        command: () => this.deleteCard()
-                    }
-                ]
+                label: 'Editar',
+                icon: 'pi pi-pencil',
+                command: () => this.openTicketForm()
+            },
+            {
+                label: 'Eliminar',
+                icon: 'pi pi-trash',
+                command: () => this.deleteTicket()
             }
         ];
     }
 
-    onDragStarted(event: CdkDragStart): void {
-        const draggedElement = event.source.element.nativeElement;
-        this.elementHeight = draggedElement.getBoundingClientRect().height;
+    onDragStarted(event: CdkDragStart) {
+        const element = event.source.element.nativeElement;
+        this.elementHeight = element.offsetHeight;
     }
 
-    private deleteCard() {}
+    openTicketForm() {
+        const ref = this.dialogService.open(TicketFormComponent, {
+            header: 'Editar Ticket',
+            width: '70%',
+            data: {
+                ticket: this.ticketCard
+            }
+        });
+    }
+
+    deleteTicket() {
+        // Implementar lógica de eliminación
+    }
+
+    removeTag(ticket: KanbanCard, tag: string) {
+        // Implementar lógica de eliminación de etiquetas
+    }
 }

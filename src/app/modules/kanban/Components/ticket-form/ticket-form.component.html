@@ -10,7 +10,7 @@
     <ng-template #header>
         <div class="flex items-center p-2 ml-3 mb-3">
             <span class="font-semibold text-xl">
-                {{ selectedTicket.title || 'Nuevo Ticket' }}
+                {{ selectedTicket.Titulo || 'Nuevo Ticket' }}
             </span>
         </div>
     </ng-template>
@@ -25,7 +25,7 @@
                     <label for="title" class="text-left mb-2">Título</label>
                     <input pInputText
                            id="title"
-                           [(ngModel)]="selectedTicket.title"
+                           [(ngModel)]="selectedTicket.Titulo"
                            placeholder="Ingrese el título del ticket"
                            [style]="{ width: '100%' }" />
                 </div>
@@ -52,7 +52,7 @@
 
                 <textarea rows="5" cols="30" pTextarea
                           id="description"
-                          [(ngModel)]="selectedTicket.description"
+                          [(ngModel)]="selectedTicket.Descripcion"
                           [style]="{ height: '320px', width: '100%' }"
                 ></textarea>
                 <!-- File upload area -->
@@ -112,15 +112,15 @@
                             <span class="block text-surface-900 dark:text-surface-0">
                               {{ comment.name }}
                             </span>
-                                                <span class="block text-surface-700 dark:text-surface-100">
+                            <span class="block text-surface-700 dark:text-surface-100">
                               {{ comment.timestamp }}
                             </span>
-                                            </div>
-                                            <span
-                                                class="block text-surface-900 dark:text-surface-0 border bg-surface-50 dark:bg-surface-950 border-surface p-2 rounded"
-                                                style="word-break: break-all;">
+                        </div>
+                        <span
+                            class="block text-surface-900 dark:text-surface-0 border bg-surface-50 dark:bg-surface-950 border-surface p-2 rounded"
+                            style="word-break: break-all;">
                             {{ comment.content }}
-                          </span>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -137,7 +137,7 @@
                 <p-select
                     id="estado"
                     [options]="catalogoService.estados()"
-                    [(ngModel)]="selectedTicket.stateCode"
+                    [(ngModel)]="selectedTicket.Estado.Id"
                     placeholder="Estado">
                 </p-select>
             </div>
@@ -146,22 +146,19 @@
                 <p-dropdown
                     id="prioridad"
                     [options]="priorityOptions"
-                    [(ngModel)]="selectedTicket.priorityCode"
+                    [(ngModel)]="selectedTicket.Prioridad.Id"
                     placeholder="Prioridad">
                 </p-dropdown>
             </div>
             <div class="flex flex-col mb-4">
                 <label for="fechaCreacion" class="mb-2">Fecha de Creación</label>
-                <p id="fechaCreacion"> {{ selectedTicket.creationDate | date: 'EEEE, MMMM dd' }} </p>
+                <p id="fechaCreacion"> {{ selectedTicket.FechaCreacion | date: 'EEEE, MMMM dd' }} </p>
             </div>
             <div class="flex flex-col mb-4">
                 <label for="fechaCierre" class="mb-2">Fecha de Cierre</label>
-                <p id="fechaCierre"> {{ selectedTicket.closureDate | date: 'EEEE, MMMM dd' }} </p>
+                <p id="fechaCierre"> {{ selectedTicket.FechaCierre | date: 'EEEE, MMMM dd' }} </p>
             </div>
         </div>
-
-
-
     </div>
 
     <ng-template #footer>

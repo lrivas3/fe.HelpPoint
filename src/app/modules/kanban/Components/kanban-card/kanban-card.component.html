@@ -1,7 +1,7 @@
 <div
     (click)="openTicketForm()"
     cdkDrag
-    [attr.id]="ticketCard.id"
+    [attr.id]="ticketCard.Id"
     class="cdk-drag"
     (cdkDragStarted)="onDragStarted($event)"
 >
@@ -15,7 +15,7 @@
         <!-- Title + Menu -->
         <div class="flex justify-between items-center">
             <span class="text-surface-900 dark:text-surface-0 font-semibold">
-            {{ ticketCard.title }}
+            {{ ticketCard.Titulo }}
                 <div class="tags flex gap-2 items-center">
                   <p-tag severity="success" styleClass="custom-tag">
                     <span>Success</span>
@@ -42,53 +42,29 @@
                     (onClick)="menu.toggle($event)"
                 >
                 </p-button>
-
             </div>
         </div>
         <!-- Description -->
         <div
             class="text-surface-700 dark:text-surface-100"
             style="word-break: break-word;"
-            *ngIf="ticketCard.description"
+            *ngIf="ticketCard.Descripcion"
         >
-            {{ ticketCard.description }}
+            {{ ticketCard.Descripcion }}
         </div>
-        <!-- Progress bar (optional) -->
-        <p-progress-bar
-            *ngIf="ticketCard.progress"
-            [value]="ticketCard.progress"
-        ></p-progress-bar>
         <!-- Bottom row: Avatars, stats, etc. -->
-        <div class="flex items-center justify-between flex-col md:flex-row gap-6 md:gap-0">
-            <!-- Avatars -->
+        <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <p-avatar-group>
-                    <!-- Muestra los dos primeros avatares -->
-                    <p-avatar *ngFor="let avatar of ticketCard.avatars | slice:0:2"
-                              [label]="avatar"
-                              shape="circle"
-                              class="border-2 border-surface" />
-                    <ng-container *ngIf="ticketCard.avatars && ticketCard.avatars.length > 2">
-                        <p-avatar label="+{{ ticketCard.avatars.length - 2 }}" shape="circle" class="border-2 border-surface" />
-                    </ng-container>
+                    <p-avatar *ngFor="let comment of ticketCard.Comments" 
+                             [label]="comment.User.CreatedByUserName[0]"
+                             [style]="{'background-color': '#9c27b0', 'color': '#ffffff'}"
+                             shape="circle">
+                    </p-avatar>
                 </p-avatar-group>
             </div>
-            <!-- Attachments, due date, etc. -->
-            <div class="flex items-center gap-4" *ngIf="ticketCard.attachments || ticketCard.creationDate">
-                <span
-                    *ngIf="ticketCard.attachments"
-                    class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"
-                >
-                <i class="pi pi-paperclip text-surface-700 dark:text-surface-100 mr-2"></i
-                >{{ ticketCard.attachments }}
-                </span>
-                <span
-                    *ngIf="ticketCard.creationDate"
-                    class="text-surface-900 dark:text-surface-0 font-semibold flex-shrink-0"
-                >
-                <i class="pi pi-calendar text-surface-700 dark:text-surface-100 mr-2"></i
-                >{{ ticketCard.creationDate | date: 'EEE, MMM dd' }}
-                </span>
+            <div class="text-sm text-surface-500">
+                {{ ticketCard.FechaCreacion | date: 'short' }}
             </div>
         </div>
     </div>
