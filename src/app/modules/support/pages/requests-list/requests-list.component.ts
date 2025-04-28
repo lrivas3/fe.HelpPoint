@@ -1,21 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
-import { Button } from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputText } from 'primeng/inputtext';
+import { Dialog } from 'primeng/dialog';
 
 @Component({
     selector: 'app-requests-list',
-    imports: [TableModule, Button, IconField, InputIcon, DatePipe, NgClass, FormsModule, DropdownModule, InputText],
+    imports: [TableModule, Button, IconField, InputIcon, DatePipe, NgClass, FormsModule, DropdownModule, InputText, ButtonDirective, Dialog, NgIf],
     templateUrl: './requests-list.component.html',
     standalone: true,
     styleUrl: './requests-list.component.scss'
 })
 export class RequestsListComponent implements OnInit {
+    reviewDialogVisible: boolean = false;
+    visible: boolean = false;
+    selectedTicket: any = null;
     tickets!: any[];
 
     representatives!: any[];
@@ -96,5 +100,24 @@ export class RequestsListComponent implements OnInit {
     // }
     getSeverity(label: string | null | undefined | BufferSource | HTMLLabelElement) {
         return undefined;
+    }
+
+    showDialog(ticket: any) {
+        this.selectedTicket = ticket;
+        this.visible = true;
+    }
+    acceptReview() {
+        console.log('Aceptado:', this.selectedTicket);
+        this.closeDialog();
+    }
+
+    rejectReview() {
+        console.log('Rechazado:', this.selectedTicket);
+        this.closeDialog();
+    }
+
+    private closeDialog() {
+        this.visible = false;
+        this.selectedTicket = null;
     }
 }
