@@ -8,10 +8,13 @@ import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputText } from 'primeng/inputtext';
 import { Dialog } from 'primeng/dialog';
+import { TicketFormComponent } from '@kanban/Components/ticket-form/ticket-form.component';
+import { TicketService } from '@kanban/services/ticket.service';
+import { KanbanCard } from '@models/kanban/kanban-card.model';
 
 @Component({
     selector: 'app-requests-list',
-    imports: [TableModule, Button, IconField, InputIcon, DatePipe, NgClass, FormsModule, DropdownModule, InputText, ButtonDirective, Dialog, NgIf],
+    imports: [TableModule, Button, IconField, InputIcon, DatePipe, NgClass, FormsModule, DropdownModule, InputText, ButtonDirective, Dialog, NgIf, TicketFormComponent],
     templateUrl: './requests-list.component.html',
     standalone: true,
     styleUrl: './requests-list.component.scss'
@@ -32,7 +35,7 @@ export class RequestsListComponent implements OnInit {
 
     searchValue: string | undefined;
 
-    constructor() {}
+    constructor(private readonly ticketService: TicketService) {}
 
     ngOnInit() {
         this.loading = false;
@@ -107,13 +110,40 @@ export class RequestsListComponent implements OnInit {
         this.visible = true;
     }
     acceptReview() {
-        console.log('Aceptado:', this.selectedTicket);
-        this.closeDialog();
+        const req: any = this.selectedTicket;
+        const card: KanbanCard = {
+            Id: '',
+            Titulo: req.titulo,
+            Descripcion: req.descripcion,
+            // TODO: traer el estado pero con el servicio de estados
+            Estado:       { Id: 1, Nombre: 'New' },     // o el estado que quieras por defecto
+            Tipo:         { Id: 1, Nombre: 'General' }, // idem
+            Prioridad:    { Id: 2, Nombre: req.prioridad },
+            FechaCreacion: new Date().toDateString(),
+            FechaCierre:   null,
+            OrdenEnTablero: 0,
+            SupportRequestId: req.id,       // si tu request lleva un id
+            CreatedBy:    { CreatedByUserId: '', CreatedByUserName: '' },
+            Comments:     []
+        };
+
+        // 1) setea el KanbanCard completo en el servicio…
+        this.ticketService.setSelectedTicket(card);
+        // 2) cierra el modal de revisión
+        this.visible = false;
+        this.selectedTicket = null;
     }
 
     rejectReview() {
-        console.log('Rechazado:', this.selectedTicket);
-        this.closeDialog();
+        this.visible = false;
+        this.selectedTicket = null;
+    }
+
+    // Opcional: manejar cuando el ticket ya fue creado
+    onTicketCreated(event: any) {
+        console.log('Ticket creado desde RequestsList:', event);
+        // ...por ejemplo eliminar la request de la lista
+        this.tickets = this.tickets.filter(r => r.id !== event.id);
     }
 
     private closeDialog() {
