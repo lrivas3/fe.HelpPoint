@@ -84,7 +84,7 @@ export class KanbanComponent implements OnInit {
         return {
             id: ticket.id,
             titulo: ticket.titulo,
-            descripcion: ticket.descripcion ?? null,
+            description: ticket.description ?? null,
             estado: {
                 id: ticket.estado.id,
                 nombre: ticket.estado.nombre

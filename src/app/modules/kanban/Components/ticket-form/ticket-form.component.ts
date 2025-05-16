@@ -36,7 +36,7 @@ export class TicketFormComponent {
     selectedTicket: KanbanCard = {
         id: '',
         titulo: '',
-        descripcion: null,
+        description: null,
         estado: { id: this.defaultStateCode, nombre: '' },
         tipo: { id: this.defaultTipoId, nombre: '' },
         prioridad: { id: this.defaultPriorityCode, nombre: '' },
@@ -83,7 +83,7 @@ export class TicketFormComponent {
 
         const req: TicketRequest = {
             Titulo: this.selectedTicket.titulo,
-            Descripcion: this.selectedTicket.descripcion ?? undefined,
+            Descripcion: this.selectedTicket.description ?? undefined,
             EstadoId: estadoId,
             TipoId: tipoId,
             PrioridadId: prioridadId,

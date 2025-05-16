@@ -19,7 +19,7 @@ export interface TicketResponse {
     id: string;
     ordenEnTablero?: number;
     titulo: string;
-    descripcion?: string | null;
+    description?: string | null;
     estado: LookUpResponse;
     tipo: LookUpResponse;
     prioridad: LookUpResponse;

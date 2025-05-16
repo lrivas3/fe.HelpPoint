@@ -53,7 +53,7 @@ export class KanbanColumnComponent {
         return {
             id: t.id,
             titulo: t.titulo,
-            descripcion: t.descripcion ?? null,
+            description: t.description ?? null,
             estado: {
                 id: t.estado.id,
                 nombre: t.estado.nombre
@@ -104,7 +104,7 @@ export class KanbanColumnComponent {
         const newCard: KanbanCard = {
             id: '', // lo genera el servidor
             titulo: '',
-            descripcion: null,
+            description: null,
             estado: { id: parseInt(this.column.id), nombre: this.column.title },
             tipo: { id: 1, nombre: '' },
             prioridad: { id: 2, nombre: '' },

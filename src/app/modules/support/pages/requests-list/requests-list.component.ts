@@ -114,7 +114,7 @@ export class RequestsListComponent implements OnInit {
         const card: KanbanCard = {
             id: '',
             titulo: req.titulo,
-            descripcion: req.descripcion,
+            description: req.descripcion,
             // TODO: traer el estado pero con el servicio de estados
             estado:       { id: 1, nombre: 'New' },     // o el estado que quieras por defecto
             tipo:         { id: 1, nombre: 'General' }, // idem

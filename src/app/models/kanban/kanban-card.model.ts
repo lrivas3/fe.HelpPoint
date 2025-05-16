@@ -3,7 +3,7 @@ import { LookUpResponse, UserLookUpResponse, ComentResponse } from '@models/tick
 export interface KanbanCard {
     id: string;
     titulo: string;
-    descripcion: string | null;
+    description: string | null;
     estado: LookUpResponse;
     tipo: LookUpResponse;
     prioridad: LookUpResponse;
