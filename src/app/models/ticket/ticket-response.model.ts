@@ -1,6 +1,6 @@
 export interface LookUpResponse {
-    Id: number;
-    Nombre: string;
+    id: number;
+    nombre: string;
 }
 
 export interface UserLookUpResponse {
@@ -16,16 +16,16 @@ export interface ComentResponse {
 }
 
 export interface TicketResponse {
-    Id: string;
-    OrdenEnTablero?: number;
-    Titulo: string;
-    Descripcion?: string | null;
-    Estado: LookUpResponse;
-    Tipo: LookUpResponse;
-    Prioridad: LookUpResponse;
-    FechaCreacion: string;
-    FechaCierre?: string | null;
-    SupportRequestId?: string;
-    CreatedBy: UserLookUpResponse;
-    Comments: ComentResponse[];
+    id: string;
+    ordenEnTablero?: number;
+    titulo: string;
+    descripcion?: string | null;
+    estado: LookUpResponse;
+    tipo: LookUpResponse;
+    prioridad: LookUpResponse;
+    fechaCreacion: string;
+    fechaCierre?: string | null;
+    supportRequestId?: string;
+    createdBy: UserLookUpResponse;
+    comments: ComentResponse[];
 }

@@ -23,7 +23,7 @@ import { PartialTicketRequest } from '@models/ticket/ticket-request.model';
 })
 export class KanbanColumnComponent {
     private _column!: KanbanColumn;
-    
+
     @Input() set column(value: KanbanColumn) {
         this._column = value;
     }
@@ -51,27 +51,27 @@ export class KanbanColumnComponent {
 
     private mapToKanbanCard(t: TicketResponse): KanbanCard {
         return {
-            Id: t.Id,
-            Titulo: t.Titulo,
-            Descripcion: t.Descripcion ?? null,
-            Estado: {
-                Id: t.Estado.Id,
-                Nombre: t.Estado.Nombre
+            id: t.id,
+            titulo: t.titulo,
+            descripcion: t.descripcion ?? null,
+            estado: {
+                id: t.estado.id,
+                nombre: t.estado.nombre
             },
-            Tipo: {
-                Id: t.Tipo.Id,
-                Nombre: t.Tipo.Nombre
+            tipo: {
+                id: t.tipo.id,
+                nombre: t.tipo.nombre
             },
-            Prioridad: {
-                Id: t.Prioridad.Id,
-                Nombre: t.Prioridad.Nombre
+            prioridad: {
+                id: t.prioridad.id,
+                nombre: t.prioridad.nombre
             },
-            FechaCreacion: t.FechaCreacion,
-            FechaCierre: t.FechaCierre ?? null,
-            OrdenEnTablero: t.OrdenEnTablero ?? 0,
-            SupportRequestId: t.SupportRequestId,
-            CreatedBy: t.CreatedBy,
-            Comments: t.Comments
+            fechaCreacion: t.fechaCreacion,
+            fechaCierre: t.fechaCierre ?? null,
+            ordenEnTablero: t.ordenEnTablero ?? 0,
+            supportRequestId: t.supportRequestId,
+            createdBy: t.createdBy,
+            comments: t.comments
         };
     }
 
@@ -93,27 +93,27 @@ export class KanbanColumnComponent {
                 OrdenEnTablero: index,
                 EstadoId: parseInt(event.container.id)
             };
-            this.ticketService.updateTicket(card.Id, updateRequest).subscribe({
-                next: () => console.log(`Orden actualizado para el ticket ${card.Id}`),
-                error: (err) => console.error(`Error al actualizar el orden del ticket ${card.Id}:`, err)
+            this.ticketService.updateTicket(card.id, updateRequest).subscribe({
+                next: () => console.log(`Orden actualizado para el ticket ${card.id}`),
+                error: (err) => console.error(`Error al actualizar el orden del ticket ${card.id}:`, err)
             });
         });
     }
 
     addCard() {
         const newCard: KanbanCard = {
-            Id: '', // lo genera el servidor
-            Titulo: '',
-            Descripcion: null,
-            Estado: { Id: parseInt(this.column.id), Nombre: this.column.title },
-            Tipo: { Id: 1, Nombre: '' },
-            Prioridad: { Id: 2, Nombre: '' },
-            FechaCreacion: null,
-            FechaCierre: null,
-            OrdenEnTablero: this.column.cards.length,
-            SupportRequestId: undefined,
-            CreatedBy: { CreatedByUserId: '', CreatedByUserName: '' },
-            Comments: []
+            id: '', // lo genera el servidor
+            titulo: '',
+            descripcion: null,
+            estado: { id: parseInt(this.column.id), nombre: this.column.title },
+            tipo: { id: 1, nombre: '' },
+            prioridad: { id: 2, nombre: '' },
+            fechaCreacion: null,
+            fechaCierre: null,
+            ordenEnTablero: this.column.cards.length,
+            supportRequestId: undefined,
+            createdBy: { CreatedByUserId: '', CreatedByUserName: '' },
+            comments: []
         };
         this.ticketService.setSelectedTicket(newCard);
     }

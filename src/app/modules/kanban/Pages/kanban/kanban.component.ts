@@ -10,7 +10,6 @@ import { CatalogoServiceService } from '@kanban/services/catalogo.service.servic
 import { TicketService } from '@kanban/services/ticket.service';
 import { TicketResponse } from '@models/ticket/ticket-response.model';
 import { KanbanCard } from '@models/kanban/kanban-card.model';
-import { PSelectableModel } from '@models/prime-components-options/p-selectable.model';
 
 @Component({
     selector: 'app-kanban',
@@ -23,17 +22,15 @@ export class KanbanComponent implements OnInit {
     columns: KanbanColumn[] = [];
 
     constructor(
-        private ticketService: TicketService,
-        private catalogo: CatalogoServiceService
+        private readonly ticketService: TicketService,
+        private readonly catalogo: CatalogoServiceService
     ) {
         // Observar cambios en los estados
         effect(() => {
             const estados = this.catalogo.estados();
-            console.log('Estados actualizados:', estados);
             if (estados && estados.length > 0) {
                 this.initializeKanban();
             } else {
-                console.warn('No hay estados disponibles, cargando...');
                 this.catalogo.loadEstados();
             }
         });
@@ -45,35 +42,32 @@ export class KanbanComponent implements OnInit {
     }
 
     private initializeKanban() {
-        console.log('Estados disponibles:', this.catalogo.getEstados());
         this.columns = this.catalogo.getEstados().map(estado => ({
             id: estado.value.toString(),
             title: estado.label,
             cards: []
         }));
+
         console.log('Columnas inicializadas:', this.columns);
 
         this.ticketService.listTickets().subscribe({
             next: (tickets) => {
                 console.log('Tickets recibidos:', tickets);
-                // Limpiamos las columnas antes de asignar los nuevos tickets
                 this.columns.forEach(col => col.cards = []);
-                
+
                 if (tickets && tickets.length > 0) {
                     tickets.forEach(ticket => {
-                        // Check if ticket.Estado and ticket.Estado.Id exist
-                        if (ticket.Estado && ticket.Estado.Id !== undefined && ticket.Estado.Id !== null) {
-                            const column = this.columns.find(col => col.id === ticket.Estado.Id.toString());
+                        if (ticket.estado && ticket.estado.id !== undefined && ticket.estado.id !== null) {
+                            const column = this.columns.find(col => col.id === ticket.estado.id.toString());
                             if (column) {
                                 const card = this.mapToKanbanCard(ticket);
                                 column.cards.push(card);
-                                console.log(`Ticket ${ticket.Id} agregado a la columna ${column.id}`);
+                                console.log(`Ticket ${ticket.id} agregado a la columna ${column.id}`);
                             } else {
-                                console.warn(`No se encontró la columna para el estado ${ticket.Estado.Id}`);
+                                console.warn(`No se encontró la columna para el estado ${ticket.estado.id}`);
                             }
                         } else {
-                            // Log a warning if a ticket has no valid Estado
-                            console.warn(`Ticket ${ticket.Id} no tiene un Estado válido o Estado.Id definido:`, ticket);
+                            console.warn(`Ticket ${ticket.id} no tiene un Estado válido o Estado.Id definido:`, ticket);
                         }
                     });
                 } else {
@@ -88,27 +82,27 @@ export class KanbanComponent implements OnInit {
 
     private mapToKanbanCard(ticket: TicketResponse): KanbanCard {
         return {
-            Id: ticket.Id,
-            Titulo: ticket.Titulo,
-            Descripcion: ticket.Descripcion ?? null,
-            Estado: {
-                Id: ticket.Estado.Id,
-                Nombre: ticket.Estado.Nombre
+            id: ticket.id,
+            titulo: ticket.titulo,
+            descripcion: ticket.descripcion ?? null,
+            estado: {
+                id: ticket.estado.id,
+                nombre: ticket.estado.nombre
             },
-            Tipo: {
-                Id: ticket.Tipo.Id,
-                Nombre: ticket.Tipo.Nombre
+            tipo: {
+                id: ticket.tipo.id,
+                nombre: ticket.tipo.nombre
             },
-            Prioridad: {
-                Id: ticket.Prioridad.Id,
-                Nombre: ticket.Prioridad.Nombre
+            prioridad: {
+                id: ticket.prioridad.id,
+                nombre: ticket.prioridad.nombre
             },
-            FechaCreacion: ticket.FechaCreacion,
-            FechaCierre: ticket.FechaCierre ?? null,
-            OrdenEnTablero: ticket.OrdenEnTablero ?? 0,
-            SupportRequestId: ticket.SupportRequestId,
-            CreatedBy: ticket.CreatedBy,
-            Comments: ticket.Comments
+            fechaCreacion: ticket.fechaCreacion,
+            fechaCierre: ticket.fechaCierre ?? null,
+            ordenEnTablero: ticket.ordenEnTablero ?? 0,
+            supportRequestId: ticket.supportRequestId,
+            createdBy: ticket.createdBy,
+            comments: ticket.comments
         };
     }
 
@@ -129,16 +123,16 @@ export class KanbanComponent implements OnInit {
     }
 
     onTicketCreated(ticket: TicketResponse) {
-        if (!ticket.Estado?.Id) {
+        if (!ticket.estado?.id) {
             console.warn('Ticket creado sin Estado válido:', ticket);
             return;
         }
 
-        const colId = ticket.Estado.Id.toString();
+        const colId = ticket.estado.id.toString();
         const column = this.columns.find(c => c.id === colId);
-        
+
         if (!column) {
-            console.warn(`No se encontró la columna para el estado ${ticket.Estado.Id}`);
+            console.warn(`No se encontró la columna para el estado ${ticket.estado.id}`);
             return;
         }
 
@@ -147,6 +141,6 @@ export class KanbanComponent implements OnInit {
         column.cards.push(card);
 
         // Reordena la columna antes de renderizar
-        column.cards.sort((a, b) => (a.OrdenEnTablero || 0) - (b.OrdenEnTablero || 0));
+        column.cards.sort((a, b) => (a.ordenEnTablero || 0) - (b.ordenEnTablero || 0));
     }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
-import { Button, ButtonDirective } from 'primeng/button';
+import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
@@ -14,7 +14,7 @@ import { KanbanCard } from '@models/kanban/kanban-card.model';
 
 @Component({
     selector: 'app-requests-list',
-    imports: [TableModule, Button, IconField, InputIcon, DatePipe, NgClass, FormsModule, DropdownModule, InputText, ButtonDirective, Dialog, NgIf, TicketFormComponent],
+    imports: [TableModule, Button, IconField, InputIcon, DatePipe, NgClass, FormsModule, DropdownModule, InputText, Dialog, NgIf, TicketFormComponent],
     templateUrl: './requests-list.component.html',
     standalone: true,
     styleUrl: './requests-list.component.scss'
@@ -112,19 +112,19 @@ export class RequestsListComponent implements OnInit {
     acceptReview() {
         const req: any = this.selectedTicket;
         const card: KanbanCard = {
-            Id: '',
-            Titulo: req.titulo,
-            Descripcion: req.descripcion,
+            id: '',
+            titulo: req.titulo,
+            descripcion: req.descripcion,
             // TODO: traer el estado pero con el servicio de estados
-            Estado:       { Id: 1, Nombre: 'New' },     // o el estado que quieras por defecto
-            Tipo:         { Id: 1, Nombre: 'General' }, // idem
-            Prioridad:    { Id: 2, Nombre: req.prioridad },
-            FechaCreacion: new Date().toDateString(),
-            FechaCierre:   null,
-            OrdenEnTablero: 0,
-            SupportRequestId: req.id,       // si tu request lleva un id
-            CreatedBy:    { CreatedByUserId: '', CreatedByUserName: '' },
-            Comments:     []
+            estado:       { id: 1, nombre: 'New' },     // o el estado que quieras por defecto
+            tipo:         { id: 1, nombre: 'General' }, // idem
+            prioridad:    { id: 2, nombre: req.prioridad },
+            fechaCreacion: new Date().toDateString(),
+            fechaCierre:   null,
+            ordenEnTablero: 0,
+            supportRequestId: req.id,       // si tu request lleva un id
+            createdBy:    { CreatedByUserId: '', CreatedByUserName: '' },
+            comments:     []
         };
 
         // 1) setea el KanbanCard completo en el servicio…

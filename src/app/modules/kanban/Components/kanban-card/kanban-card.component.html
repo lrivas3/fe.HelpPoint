@@ -1,7 +1,7 @@
 <div
     (click)="openTicketForm()"
     cdkDrag
-    [attr.id]="ticketCard.Id"
+    [attr.id]="ticketCard.id"
     class="cdk-drag"
     (cdkDragStarted)="onDragStarted($event)"
 >
@@ -15,7 +15,7 @@
         <!-- Title + Menu -->
         <div class="flex justify-between items-center">
             <span class="text-surface-900 dark:text-surface-0 font-semibold">
-            {{ ticketCard.Titulo }}
+            {{ ticketCard.titulo }}
                 <div class="tags flex gap-2 items-center">
                   <p-tag severity="success" styleClass="custom-tag">
                     <span>Success</span>
@@ -48,15 +48,15 @@
         <div
             class="text-surface-700 dark:text-surface-100"
             style="word-break: break-word;"
-            *ngIf="ticketCard.Descripcion"
+            *ngIf="ticketCard.descripcion"
         >
-            {{ ticketCard.Descripcion }}
+            {{ ticketCard.descripcion }}
         </div>
         <!-- Bottom row: Avatars, stats, etc. -->
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <p-avatar-group>
-                    <p-avatar *ngFor="let comment of ticketCard.Comments" 
+                    <p-avatar *ngFor="let comment of ticketCard.comments"
                              [label]="comment.User.CreatedByUserName[0]"
                              [style]="{'background-color': '#9c27b0', 'color': '#ffffff'}"
                              shape="circle">
@@ -64,7 +64,7 @@
                 </p-avatar-group>
             </div>
             <div class="text-sm text-surface-500">
-                {{ ticketCard.FechaCreacion | date: 'short' }}
+                {{ ticketCard.fechaCreacion | date: 'short' }}
             </div>
         </div>
     </div>
