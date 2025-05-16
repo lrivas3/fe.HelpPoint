@@ -4,27 +4,32 @@ export interface LookUpResponse {
 }
 
 export interface UserLookUpResponse {
-    CreatedByUserId: string;
-    CreatedByUserName: string;
+    createdByUserId: string;
+    createdByUserName: string;
 }
 
 export interface ComentResponse {
-    Id: string;
-    User: UserLookUpResponse;
-    Comentario: string;
-    FechaCreacion: string;
+    id: string;
+    user: UserLookUpResponse;
+    comentario: string;
+    fechaCreacion: string;
 }
 
 export interface TicketResponse {
     id: string;
-    ordenEnTablero?: number;
-    titulo: string;
+    title: string;
     description?: string | null;
     estado: LookUpResponse;
     tipo: LookUpResponse;
     prioridad: LookUpResponse;
-    fechaCreacion: string;
-    fechaCierre?: string | null;
+    creationDate: string;
+    closureDate?: string | null;
+    orderInBoard?: number;
+    tags: string[];
+    progress: number | null;
+    checkList: number | null;
+    attachments: string[] | null;
+    avatar: string[] | null;
     supportRequestId?: string;
     createdBy: UserLookUpResponse;
     comments: ComentResponse[];

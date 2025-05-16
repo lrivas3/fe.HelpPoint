@@ -1,4 +1,4 @@
-import { Component, OnInit, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { CatalogoServiceService } from '@kanban/services/catalogo.service.servic
 import { TicketService } from '@kanban/services/ticket.service';
 import { TicketResponse } from '@models/ticket/ticket-response.model';
 import { KanbanCard } from '@models/kanban/kanban-card.model';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-kanban',
@@ -18,41 +19,41 @@ import { KanbanCard } from '@models/kanban/kanban-card.model';
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, CdkDropList, KanbanColumnComponent, TicketFormComponent]
 })
-export class KanbanComponent implements OnInit {
+export class KanbanComponent implements OnInit, OnDestroy {
     columns: KanbanColumn[] = [];
-
+    private estadosSubscription?: Subscription;
     constructor(
         private readonly ticketService: TicketService,
         private readonly catalogo: CatalogoServiceService
     ) {
-        // Observar cambios en los estados
-        effect(() => {
-            const estados = this.catalogo.estados();
-            if (estados && estados.length > 0) {
-                this.initializeKanban();
-            } else {
-                this.catalogo.loadEstados();
-            }
-        });
     }
 
     ngOnInit() {
+        this.estadosSubscription = this.catalogo.getEstados().subscribe(estados => {
+            if (estados && estados.length > 0) {
+                this.initializeKanban(estados);
+            }
+        });
         // Forzar la carga inicial de estados
         this.catalogo.loadEstados();
     }
 
-    private initializeKanban() {
-        this.columns = this.catalogo.getEstados().map(estado => ({
+    ngOnDestroy() {
+        // Unsubscribe to prevent memory leaks
+        if (this.estadosSubscription) {
+            this.estadosSubscription.unsubscribe();
+        }
+    }
+
+    private initializeKanban(estados: any[]) {
+        this.columns = estados.map(estado => ({
             id: estado.value.toString(),
             title: estado.label,
             cards: []
         }));
 
-        console.log('Columnas inicializadas:', this.columns);
-
         this.ticketService.listTickets().subscribe({
             next: (tickets) => {
-                console.log('Tickets recibidos:', tickets);
                 this.columns.forEach(col => col.cards = []);
 
                 if (tickets && tickets.length > 0) {
@@ -62,7 +63,6 @@ export class KanbanComponent implements OnInit {
                             if (column) {
                                 const card = this.mapToKanbanCard(ticket);
                                 column.cards.push(card);
-                                console.log(`Ticket ${ticket.id} agregado a la columna ${column.id}`);
                             } else {
                                 console.warn(`No se encontró la columna para el estado ${ticket.estado.id}`);
                             }
@@ -83,7 +83,7 @@ export class KanbanComponent implements OnInit {
     private mapToKanbanCard(ticket: TicketResponse): KanbanCard {
         return {
             id: ticket.id,
-            titulo: ticket.titulo,
+            title: ticket.title,
             description: ticket.description ?? null,
             estado: {
                 id: ticket.estado.id,
@@ -97,9 +97,14 @@ export class KanbanComponent implements OnInit {
                 id: ticket.prioridad.id,
                 nombre: ticket.prioridad.nombre
             },
-            fechaCreacion: ticket.fechaCreacion,
-            fechaCierre: ticket.fechaCierre ?? null,
-            ordenEnTablero: ticket.ordenEnTablero ?? 0,
+            creationDate: ticket.creationDate,
+            closureDate: ticket.closureDate ?? null,
+            orderInBoard: ticket.orderInBoard ?? 0,
+            tags: ticket.tags,
+            progress: ticket.progress,
+            checkList: ticket.checkList,
+            attachments: ticket.attachments,
+            avatar: ticket.avatar,
             supportRequestId: ticket.supportRequestId,
             createdBy: ticket.createdBy,
             comments: ticket.comments
@@ -141,6 +146,6 @@ export class KanbanComponent implements OnInit {
         column.cards.push(card);
 
         // Reordena la columna antes de renderizar
-        column.cards.sort((a, b) => (a.ordenEnTablero || 0) - (b.ordenEnTablero || 0));
+        column.cards.sort((a, b) => (a.orderInBoard || 0) - (b.orderInBoard || 0));
     }
 }

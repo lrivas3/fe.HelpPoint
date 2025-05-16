@@ -2,14 +2,19 @@ import { LookUpResponse, UserLookUpResponse, ComentResponse } from '@models/tick
 
 export interface KanbanCard {
     id: string;
-    titulo: string;
+    title: string;
     description: string | null;
     estado: LookUpResponse;
     tipo: LookUpResponse;
     prioridad: LookUpResponse;
-    fechaCreacion: string | null;
-    fechaCierre: string | null;
-    ordenEnTablero: number;
+    creationDate: string | null;
+    closureDate: string | null;
+    orderInBoard: number;
+    tags: string[];
+    progress: number | null;
+    checkList: number | null;
+    attachments: string[] | null;
+    avatar: string[] | null;
     supportRequestId?: string;
     createdBy: UserLookUpResponse;
     comments: ComentResponse[];

@@ -52,7 +52,7 @@ export class KanbanColumnComponent {
     private mapToKanbanCard(t: TicketResponse): KanbanCard {
         return {
             id: t.id,
-            titulo: t.titulo,
+            title: t.title,
             description: t.description ?? null,
             estado: {
                 id: t.estado.id,
@@ -66,9 +66,14 @@ export class KanbanColumnComponent {
                 id: t.prioridad.id,
                 nombre: t.prioridad.nombre
             },
-            fechaCreacion: t.fechaCreacion,
-            fechaCierre: t.fechaCierre ?? null,
-            ordenEnTablero: t.ordenEnTablero ?? 0,
+            creationDate: t.creationDate,
+            closureDate: t.closureDate ?? null,
+            orderInBoard: t.orderInBoard ?? 0,
+            tags: t.tags,
+            progress: t.progress,
+            checkList: t.checkList,
+            attachments: t.attachments,
+            avatar: t.avatar,
             supportRequestId: t.supportRequestId,
             createdBy: t.createdBy,
             comments: t.comments
@@ -103,17 +108,23 @@ export class KanbanColumnComponent {
     addCard() {
         const newCard: KanbanCard = {
             id: '', // lo genera el servidor
-            titulo: '',
+            title: '',
             description: null,
             estado: { id: parseInt(this.column.id), nombre: this.column.title },
             tipo: { id: 1, nombre: '' },
             prioridad: { id: 2, nombre: '' },
-            fechaCreacion: null,
-            fechaCierre: null,
-            ordenEnTablero: this.column.cards.length,
+            creationDate: null,
+            closureDate: null,
+            orderInBoard: this.column.cards.length,
+            tags: [],
+            progress: null,
+            checkList: null,
+            attachments: [],
+            avatar: null,
             supportRequestId: undefined,
-            createdBy: { CreatedByUserId: '', CreatedByUserName: '' },
-            comments: []
+            createdBy: { createdByUserId: '', createdByUserName: '' },
+            comments: [],
+
         };
         this.ticketService.setSelectedTicket(newCard);
     }

@@ -1,4 +1,4 @@
-import { Component, effect, Output, EventEmitter } from '@angular/core';
+import { Component, effect, Output, EventEmitter, OnInit } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { Button } from 'primeng/button';
 import { TicketService } from '@kanban/services/ticket.service';
@@ -26,7 +26,7 @@ import { ToastSeverity } from '@models/toast-severity';
     standalone: true,
     styleUrl: './ticket-form.component.scss'
 })
-export class TicketFormComponent {
+export class TicketFormComponent implements OnInit {
     @Output() ticketCreated = new EventEmitter<TicketResponse>();
     visible: boolean = false;
     defaultStateCode: number = 1;
@@ -35,21 +35,27 @@ export class TicketFormComponent {
 
     selectedTicket: KanbanCard = {
         id: '',
-        titulo: '',
+        title: '',
         description: null,
         estado: { id: this.defaultStateCode, nombre: '' },
         tipo: { id: this.defaultTipoId, nombre: '' },
         prioridad: { id: this.defaultPriorityCode, nombre: '' },
-        fechaCreacion: null,
-        fechaCierre: null,
-        ordenEnTablero: 0,
+        creationDate: null,
+        closureDate: null,
+        orderInBoard: 0,
+        tags: [],
+        progress: null,
+        checkList: null,
+        attachments: null,
+        avatar: null,
         supportRequestId: undefined,
-        createdBy: { CreatedByUserId: '', CreatedByUserName: '' },
+        createdBy: { createdByUserId: '', createdByUserName: '' },
         comments: []
     };
 
     priorityOptions: PSelectableModel[] = [];
     comments: any;
+    estadosOptions: PSelectableModel[] = [];
 
     constructor(
         private readonly ticketService: TicketService,
@@ -65,12 +71,18 @@ export class TicketFormComponent {
         });
     }
 
+    ngOnInit(): void {
+        this.catalogoService.getEstados().subscribe(estados => {
+            this.estadosOptions = estados;
+        });
+    }
+
     showDialog() {
         this.visible = true;
     }
 
     saveTicket(): void {
-        if (!this.selectedTicket.titulo) {
+        if (!this.selectedTicket.title) {
             this.toastService.show(ToastSeverity.Error, 'Error', 'El título es requerido');
             return;
         }
@@ -82,20 +94,17 @@ export class TicketFormComponent {
         const tipoId = this.selectedTicket.tipo.id || this.defaultTipoId;
 
         const req: TicketRequest = {
-            Titulo: this.selectedTicket.titulo,
+            Titulo: this.selectedTicket.title,
             Descripcion: this.selectedTicket.description ?? undefined,
             EstadoId: estadoId,
             TipoId: tipoId,
             PrioridadId: prioridadId,
-            OrdenEnTablero: this.selectedTicket.ordenEnTablero,
+            OrdenEnTablero: this.selectedTicket.orderInBoard,
             SupportRequestId: this.selectedTicket.supportRequestId
         };
 
-        console.log('Creando ticket con request:', req);
-
         this.ticketService.createTicket(req).subscribe({
             next: (t: TicketResponse) => {
-                console.log('Ticket creado:', t);
                 this.ticketCreated.emit(t);
                 this.visible = false;
                 this.ticketService.clearSelectedTicket();

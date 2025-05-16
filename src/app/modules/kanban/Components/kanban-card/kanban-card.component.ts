@@ -33,8 +33,6 @@ export class KanbanCardComponent implements OnInit {
     constructor(private toastService: ToastService, private ticketService: TicketService, private dialogService: DialogService) {}
 
     ngOnInit() {
-        console.log('KanbanCardComponent initialized with ticket:', this.ticketCard);
-        console.log(this.ticketCard);
         this.items = [
             {
                 label: 'Editar',
@@ -55,12 +53,11 @@ export class KanbanCardComponent implements OnInit {
     }
 
     openTicketForm() {
-        const ref = this.dialogService.open(TicketFormComponent, {
+        this.dialogService.open(TicketFormComponent, {
             header: 'Editar Ticket',
             width: '70%',
-            data: {
-                ticket: this.ticketCard
-            }
+            closable: true,
+            data: { ticket: this.ticketCard }
         });
     }
 

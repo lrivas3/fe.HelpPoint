@@ -15,7 +15,7 @@
         <!-- Title + Menu -->
         <div class="flex justify-between items-center">
             <span class="text-surface-900 dark:text-surface-0 font-semibold">
-            {{ ticketCard.titulo }}
+            {{ ticketCard.title }}
                 <div class="tags flex gap-2 items-center">
                   <p-tag severity="success" styleClass="custom-tag">
                     <span>Success</span>
@@ -57,14 +57,14 @@
             <div class="flex items-center gap-2">
                 <p-avatar-group>
                     <p-avatar *ngFor="let comment of ticketCard.comments"
-                             [label]="comment.User.CreatedByUserName[0]"
+                             [label]="comment.user.createdByUserName[0]"
                              [style]="{'background-color': '#9c27b0', 'color': '#ffffff'}"
                              shape="circle">
                     </p-avatar>
                 </p-avatar-group>
             </div>
             <div class="text-sm text-surface-500">
-                {{ ticketCard.fechaCreacion | date: 'short' }}
+                {{ ticketCard.creationDate | date: 'short' }}
             </div>
         </div>
     </div>

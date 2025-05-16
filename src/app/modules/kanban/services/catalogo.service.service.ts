@@ -3,34 +3,41 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
 import { PSelectableModel } from '@models/prime-components-options/p-selectable.model';
 import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs'; // Import BehaviorSubject and Observable
+import { map } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class CatalogoServiceService {
     apiUrl = environment.API_URL;
-    estados: WritableSignal<PSelectableModel[]> = signal([]);
+    private estadosSubject = new BehaviorSubject<PSelectableModel[]>([]);
+    public estados$ = this.estadosSubject.asObservable();
+    private estadosCache: PSelectableModel[] | null = null; // Cache
 
     constructor(private http: HttpClient) {
         this.loadEstados();
     }
 
     loadEstados() {
-        console.log('Cargando estados desde:', `${this.apiUrl}/api/v1/catalogo/estados`);
-        this.http.get<PSelectableModel[]>(`${this.apiUrl}/api/v1/catalogo/estados`).pipe(
-            tap(estados => {
-                console.log('Estados cargados:', estados);
-                this.estados.set(estados);
-            })
-        ).subscribe({
-            error: (error) => {
-                console.error('Error al cargar estados:', error);
-            }
-        });
+        if (this.estadosCache) {
+            this.estadosSubject.next(this.estadosCache); // If cached, emit immediately
+        } else {
+            this.http.get<PSelectableModel[]>(`${this.apiUrl}/api/v1/catalogo/estados`).pipe(
+                tap(estados => {
+                    this.estadosCache = estados;
+                    this.estadosSubject.next(estados);
+                })
+            ).subscribe({
+                error: (error) => {
+                    console.error('Error al cargar estados:', error);
+                }
+            });
+        }
     }
 
-    getEstados() {
-        return this.estados();
+    getEstados(): Observable<PSelectableModel[]> { // Return Observable
+        return this.estados$;
     }
 
     getCatalogo() {

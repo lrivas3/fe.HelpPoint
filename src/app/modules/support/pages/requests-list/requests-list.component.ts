@@ -35,6 +35,10 @@ export class RequestsListComponent implements OnInit {
 
     searchValue: string | undefined;
 
+    defaultStateCode: number = 1;
+    defaultPriorityCode: number = 2;
+    defaultTipoId: number = 1;
+
     constructor(private readonly ticketService: TicketService) {}
 
     ngOnInit() {
@@ -113,17 +117,21 @@ export class RequestsListComponent implements OnInit {
         const req: any = this.selectedTicket;
         const card: KanbanCard = {
             id: '',
-            titulo: req.titulo,
+            title: req.titulo,
             description: req.descripcion,
-            // TODO: traer el estado pero con el servicio de estados
-            estado:       { id: 1, nombre: 'New' },     // o el estado que quieras por defecto
-            tipo:         { id: 1, nombre: 'General' }, // idem
-            prioridad:    { id: 2, nombre: req.prioridad },
-            fechaCreacion: new Date().toDateString(),
-            fechaCierre:   null,
-            ordenEnTablero: 0,
-            supportRequestId: req.id,       // si tu request lleva un id
-            createdBy:    { CreatedByUserId: '', CreatedByUserName: '' },
+            estado:       { id: this.defaultStateCode, nombre:  '' },
+            tipo:         { id: this.defaultTipoId, nombre: '' },
+            prioridad:    { id: this.defaultPriorityCode, nombre: '' },
+            creationDate: new Date().toDateString(),
+            closureDate:   null,
+            orderInBoard: 0,
+            tags: [],
+            progress: null,
+            checkList: null,
+            attachments: [],
+            avatar: [],
+            supportRequestId: req.id,
+            createdBy:    { createdByUserId: '', createdByUserName: '' },
             comments:     []
         };
 
