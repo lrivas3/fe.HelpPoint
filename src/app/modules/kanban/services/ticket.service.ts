@@ -1,6 +1,6 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { KanbanCard } from '@models/kanban/kanban-card.model';
 import { TicketRequest, PartialTicketRequest } from '@models/ticket/ticket-request.model';
 import { ComentResponse, TicketResponse } from '@models/ticket/ticket-response.model';
@@ -11,8 +11,12 @@ import { TicketCommentRequest } from '@models/ticket/ticket-comment-request';
     providedIn: 'root'
 })
 export class TicketService {
-    apiUrl = environment.API_URL;
-    private readonly baseUrl = this.apiUrl + '/api/v1/tickets';
+    private readonly apiUrl   = environment.API_URL;
+    private readonly baseUrl  = `${this.apiUrl}/api/v1/tickets`;
+
+    // 1) Subject para notificar cambios
+    private readonly _ticketsChanged$ = new BehaviorSubject<void>(void 0);
+    ticketsChanged$ = this._ticketsChanged$.asObservable();
 
     /** Señal para el ticket seleccionado en el formulario */
     selectedTicket: WritableSignal<KanbanCard | null> = signal(null);
@@ -30,8 +34,12 @@ export class TicketService {
     }
 
     /** Crea un nuevo ticket en el backend */
-    createTicket(ticket: TicketRequest): Observable<TicketResponse> {
-        return this.http.post<TicketResponse>(`${this.apiUrl}/api/v1/tickets`, ticket);
+    createTicket(request: TicketRequest): Observable<TicketResponse> {
+        return this.http
+            .post<TicketResponse>(this.baseUrl, request)
+            .pipe(
+                tap(() => this._ticketsChanged$.next())
+            );
     }
 
     /** Obtiene un ticket por su ID */
@@ -39,19 +47,26 @@ export class TicketService {
         return this.http.get<TicketResponse>(`${this.baseUrl}/${id}`);
     }
 
-    /** Obtiene la lista de tickets */
-    listTickets(): Observable<TicketResponse[]> {
-        return this.http.get<TicketResponse[]>(this.baseUrl);
+    /** Obtiene la lista de tickets para Kanban */
+    listTicketsForKanban(): Observable<KanbanCard[]> {
+        return this.http.get<KanbanCard[]>(`${this.baseUrl}`);
     }
 
     /** Actualiza un ticket existente */
     updateTicket(id: string, request: PartialTicketRequest): Observable<TicketResponse> {
-        return this.http.put<TicketResponse>(`${this.baseUrl}/${id}`, request);
+        return this.http
+            .put<TicketResponse>(`${this.baseUrl}/${id}`, request)
+            .pipe(
+                tap(() => this._ticketsChanged$.next())
+            );
     }
+
+    /** Agrega un comentario a un ticket */
     addComment(ticketId: string, comment: TicketCommentRequest): Observable<ComentResponse> {
-        return this.http.post<ComentResponse>(
-            `${this.baseUrl}/${ticketId}/comments`,
-            comment
-        );
+        return this.http
+            .post<ComentResponse>(`${this.baseUrl}/${ticketId}/comments`, comment)
+            .pipe(
+                tap(() => this._ticketsChanged$.next())
+            );
     }
 }

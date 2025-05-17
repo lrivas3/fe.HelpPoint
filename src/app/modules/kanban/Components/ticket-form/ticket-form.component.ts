@@ -22,100 +22,138 @@ import { TicketCommentRequest } from '@models/ticket/ticket-comment-request';
 
 @Component({
     selector: 'app-ticket-form',
-    imports: [Dialog, Button, FormsModule, Divider, DropdownModule, Select, DatePipe, Tag, Avatar, InputText, NgForOf, NgIf, Textarea],
-    templateUrl: './ticket-form.component.html',
     standalone: true,
+    imports: [
+        Dialog,
+        Button,
+        FormsModule,
+        Divider,
+        DropdownModule,
+        Select,
+        DatePipe,
+        Tag,
+        Avatar,
+        InputText,
+        NgForOf,
+        NgIf,
+        Textarea
+    ],
+    templateUrl: './ticket-form.component.html',
     styleUrl: './ticket-form.component.scss'
 })
 export class TicketFormComponent implements OnInit {
     @Output() ticketCreated = new EventEmitter<TicketResponse>();
-    visible: boolean = false;
-    defaultStateCode: number = 1;
-    defaultPriorityCode: number = 2;
-    defaultTipoId: number = 1;
-    commentText: string = '';
 
+    /** Control del diálogo */
+    visible = false;
+
+    /** Valores por defecto */
+    defaultStateCode    = 1;
+    defaultPriorityCode = 2;
+    defaultTipoId       = 1;
+
+    /** Texto del nuevo comentario */
+    commentText = '';
+
+    /** El ticket original (inmutable en el modal) */
     selectedTicket: KanbanCard = {
         id: '',
         title: '',
         description: null,
-        estado: { id: this.defaultStateCode, nombre: '' },
-        tipo: { id: this.defaultTipoId, nombre: '' },
+        estado:    { id: this.defaultStateCode,    nombre: '' },
+        tipo:      { id: this.defaultTipoId,       nombre: '' },
         prioridad: { id: this.defaultPriorityCode, nombre: '' },
         creationDate: null,
-        closureDate: null,
+        closureDate:  null,
         orderInBoard: 0,
-        tags: [],
-        progress: null,
-        checkList: null,
-        attachments: null,
-        avatar: null,
-        supportRequestId: undefined,
-        createdBy: { createdByUserId: '', createdByUserName: '' },
-        comments: []
+        tags:         [],
+        progress:     null,
+        checkList:    null,
+        attachments:  [],
+        avatar:       [],
+        supportRequestId: null,
+        createdBy:    { createdByUserId: '', createdByUserName: '' },
+        comments:     []
     };
 
-    priorityOptions: PSelectableModel[] = [];
-    comments: any;
+    /** Copia profunda para edición */
+    workingTicket: KanbanCard = { ...this.selectedTicket };
+
+    /** Opciones para selects */
     estadosOptions: PSelectableModel[] = [];
+    priorityOptions: PSelectableModel[] = [];
 
     constructor(
         private readonly ticketService: TicketService,
-        public catalogoService: CatalogoServiceService,
+        public  readonly catalogoService: CatalogoServiceService,
         private readonly toastService: ToastService
     ) {
+        // Al recibir un ticket, clonar y abrir diálogo
         effect(() => {
             const ticket = this.ticketService.selectedTicket();
             if (ticket) {
                 this.selectedTicket = ticket;
+                // deep clone para aislar cambios
+                this.workingTicket = JSON.parse(JSON.stringify(ticket));
+                this.commentText = '';
                 this.showDialog();
             }
         });
     }
 
     ngOnInit(): void {
+        // Cargar catálogo de estados y prioridades
         this.catalogoService.getEstados().subscribe(estados => {
             this.estadosOptions = estados;
         });
+        this.catalogoService.getPrioridades().subscribe(prioridades => {
+            this.priorityOptions = prioridades;
+        });
     }
 
-    showDialog() {
+    showDialog(): void {
         this.visible = true;
     }
 
+    cancel(): void {
+        // Cerrar sin aplicar cambios
+        this.visible = false;
+        this.ticketService.clearSelectedTicket();
+    }
+
     saveTicket(): void {
-        // 1) Validaciones básicas
-        if (!this.selectedTicket.title?.trim()) {
+        // 1) Validar título
+        if (!this.workingTicket.title?.trim()) {
             this.toastService.show(ToastSeverity.Error, 'Error', 'El título es requerido');
             return;
         }
 
-        // 2) Determinar IDs (o fallback a defaults)
-        const estadoId    = this.selectedTicket.estado?.id   ?? this.defaultStateCode;
-        const tipoId      = this.selectedTicket.tipo?.id     ?? this.defaultTipoId;
-        const prioridadId = this.selectedTicket.prioridad?.id ?? this.defaultPriorityCode;
+        // 2) IDs con fallback
+        const estadoId    = this.workingTicket.estado?.id   ?? this.defaultStateCode;
+        const tipoId      = this.workingTicket.tipo?.id     ?? this.defaultTipoId;
+        const prioridadId = this.workingTicket.prioridad?.id ?? this.defaultPriorityCode;
 
-        // 3) ¿UPDATE o CREATE?
-        if (this.selectedTicket.id) {
-            // ==== ACTUALIZAR ====
-            const updateReq: PartialTicketRequest = {
-                Titulo:         this.selectedTicket.title,
-                Descripcion:    this.selectedTicket.description?.trim() || undefined,
-                EstadoId:       estadoId,
-                TipoId:         tipoId,
-                PrioridadId:    prioridadId,
-                OrdenEnTablero: this.selectedTicket.orderInBoard,
-                SupportRequestId: this.selectedTicket.supportRequestId || null
-            };
-
-            // Si cambiamos a "Cerrado" (id=3), setear FechaCierre; si no, null para reabrir
-            updateReq.FechaCierre = (estadoId === 3)
+        // 3) Crear DTO base para update
+        const baseReq: PartialTicketRequest = {
+            Titulo:         this.workingTicket.title.trim(),
+            Descripcion:    this.workingTicket.description?.trim() || undefined,
+            EstadoId:       estadoId,
+            TipoId:         tipoId,
+            PrioridadId:    prioridadId,
+            OrdenEnTablero: this.workingTicket.orderInBoard,
+            SupportRequestId: this.workingTicket.supportRequestId || null,
+            FechaCierre:    (estadoId === 3)
                 ? new Date().toISOString()
-                : null;
+                : null
+        };
 
-            this.ticketService.updateTicket(this.selectedTicket.id, updateReq)
+        if (this.workingTicket.id) {
+            // ==== ACTUALIZAR ====
+            this.ticketService.updateTicket(this.workingTicket.id, baseReq)
                 .subscribe({
                     next: (updated: TicketResponse) => {
+                        // Aplicar cambios al original
+                        Object.assign(this.selectedTicket, updated);
                         this.toastService.show(ToastSeverity.Success, 'Éxito', 'Ticket actualizado');
                         this.visible = false;
                         this.ticketService.clearSelectedTicket();
@@ -126,19 +164,17 @@ export class TicketFormComponent implements OnInit {
                         this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudo actualizar el ticket');
                     }
                 });
-
         } else {
             // ==== CREAR ====
             const createReq: TicketRequest = {
-                Titulo:         this.selectedTicket.title,
-                Descripcion:    this.selectedTicket.description?.trim() || undefined,
-                EstadoId:       estadoId,
-                TipoId:         tipoId,
-                PrioridadId:    prioridadId,
-                OrdenEnTablero: this.selectedTicket.orderInBoard,
-                SupportRequestId: this.selectedTicket.supportRequestId || null
+                Titulo:         baseReq.Titulo!,
+                Descripcion:    baseReq.Descripcion,
+                EstadoId:       baseReq.EstadoId!,
+                TipoId:         baseReq.TipoId!,
+                PrioridadId:    baseReq.PrioridadId!,
+                OrdenEnTablero: baseReq.OrdenEnTablero!,
+                SupportRequestId: baseReq.SupportRequestId
             };
-
             this.ticketService.createTicket(createReq)
                 .subscribe({
                     next: (created: TicketResponse) => {
@@ -155,13 +191,6 @@ export class TicketFormComponent implements OnInit {
         }
     }
 
-    cancel(): void {
-        this.visible = false;
-        this.ticketService.clearSelectedTicket();
-    }
-
-    removeTag(success: string) {}
-
     addComment(): void {
         const text = this.commentText.trim();
         if (!text) {
@@ -169,11 +198,11 @@ export class TicketFormComponent implements OnInit {
             return;
         }
         const req: TicketCommentRequest = { Comentario: text };
-        this.ticketService.addComment(this.selectedTicket.id, req)
+        this.ticketService.addComment(this.workingTicket.id, req)
             .subscribe({
                 next: (c: ComentResponse) => {
-                    // Inserta en local sin recargar
-                    this.selectedTicket.comments.push(c);
+                    // Inserta en la copia para previsualizar
+                    this.workingTicket.comments.push(c);
                     this.commentText = '';
                     this.toastService.show(ToastSeverity.Success, '¡Listo!', 'Comentario agregado');
                 },
@@ -182,5 +211,9 @@ export class TicketFormComponent implements OnInit {
                     this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudo agregar el comentario');
                 }
             });
+    }
+
+    removeTag(success: string) {
+
     }
 }

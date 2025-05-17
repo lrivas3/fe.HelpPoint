@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,108 +9,99 @@ import { TicketFormComponent } from '@kanban/Components/ticket-form/ticket-form.
 import { CatalogoServiceService } from '@kanban/services/catalogo.service.service';
 import { TicketService } from '@kanban/services/ticket.service';
 import { TicketResponse } from '@models/ticket/ticket-response.model';
-import { KanbanCard } from '@models/kanban/kanban-card.model';
 import { Subscription } from 'rxjs';
+import { KanbanCardComponent } from '@kanban/Components/kanban-card/kanban-card.component';
 
 @Component({
     selector: 'app-kanban',
     templateUrl: './kanban.component.html',
     styleUrls: ['./kanban.component.scss'],
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, CdkDropList, KanbanColumnComponent, TicketFormComponent]
+    imports: [
+        CommonModule,
+        FormsModule,
+        ButtonModule,
+        CdkDropList,
+        KanbanColumnComponent,
+        TicketFormComponent,
+        KanbanCardComponent
+    ]
 })
 export class KanbanComponent implements OnInit, OnDestroy {
     columns: KanbanColumn[] = [];
+
     private estadosSubscription?: Subscription;
+    private ticketsChangedSubscription?: Subscription;
+
+    // Guardamos el catálogo de estados para reusar
+    private estadosList: { label: string; value: number }[] = [];
+
     constructor(
         private readonly ticketService: TicketService,
         private readonly catalogo: CatalogoServiceService
-    ) {
-    }
+    ) {}
 
     ngOnInit() {
+        // 1) Primero cargamos los estados para inicializar columnas
         this.estadosSubscription = this.catalogo.getEstados().subscribe(estados => {
-            if (estados && estados.length > 0) {
-                this.initializeKanban(estados);
+            this.estadosList = estados;
+            if (estados.length > 0) {
+                this.initializeKanbanLists(estados);
             }
         });
-        // Forzar la carga inicial de estados
+
+        // Cargar catálogo en cache
         this.catalogo.loadEstados();
+        this.catalogo.loadPrioridades();
+
+        // 2) Nos suscribimos a cualquier cambio en tickets (create/update/comment)
+        this.ticketsChangedSubscription = this.ticketService.ticketsChanged$.subscribe(() => {
+            this.reloadCards();
+        });
     }
 
     ngOnDestroy() {
-        // Unsubscribe to prevent memory leaks
-        if (this.estadosSubscription) {
-            this.estadosSubscription.unsubscribe();
-        }
+        this.estadosSubscription?.unsubscribe();
+        this.ticketsChangedSubscription?.unsubscribe();
     }
 
-    private initializeKanban(estados: any[]) {
-        this.columns = estados.map(estado => ({
-            id: estado.value.toString(),
-            title: estado.label,
+    /** Crea las columnas y carga sus tarjetas */
+    private initializeKanbanLists(estados: { label: string; value: number }[]) {
+        // Mapear estados a KanbanColumn
+        this.columns = estados.map(e => ({
+            id: e.value.toString(),
+            title: e.label,
             cards: []
         }));
 
-        this.ticketService.listTickets().subscribe({
-            next: (tickets) => {
+        // Cargar tarjetas en esas columnas
+        this.reloadCards();
+    }
+
+    /** Recarga solo las tarjetas, manteniendo las columnas */
+    private reloadCards() {
+        this.ticketService.listTicketsForKanban().subscribe({
+            next: tickets => {
+                // Vaciar tarjetas actuales
                 this.columns.forEach(col => col.cards = []);
 
-                if (tickets && tickets.length > 0) {
-                    tickets.forEach(ticket => {
-                        if (ticket.estado && ticket.estado.id !== undefined && ticket.estado.id !== null) {
-                            const column = this.columns.find(col => col.id === ticket.estado.id.toString());
-                            if (column) {
-                                const card = this.mapToKanbanCard(ticket);
-                                column.cards.push(card);
-                            } else {
-                                console.warn(`No se encontró la columna para el estado ${ticket.estado.id}`);
-                            }
-                        } else {
-                            console.warn(`Ticket ${ticket.id} no tiene un Estado válido o Estado.Id definido:`, ticket);
-                        }
-                    });
-                } else {
-                    console.warn('No se recibieron tickets del servidor');
-                }
+                // Reasignar cada ticket a su columna
+                tickets.forEach(ticket => {
+                    const col = this.columns.find(c => c.id === ticket.estado.id.toString());
+                    if (col) {
+                        col.cards.push(ticket);
+                    } else {
+                        console.warn(`Estado ${ticket.estado.id} sin columna asociada`);
+                    }
+                });
             },
-            error: (error) => {
-                console.error('Error al cargar tickets:', error);
+            error: err => {
+                console.error('Error al recargar tickets:', err);
             }
         });
     }
 
-    private mapToKanbanCard(ticket: TicketResponse): KanbanCard {
-        return {
-            id: ticket.id,
-            title: ticket.title,
-            description: ticket.description ?? null,
-            estado: {
-                id: ticket.estado.id,
-                nombre: ticket.estado.nombre
-            },
-            tipo: {
-                id: ticket.tipo.id,
-                nombre: ticket.tipo.nombre
-            },
-            prioridad: {
-                id: ticket.prioridad.id,
-                nombre: ticket.prioridad.nombre
-            },
-            creationDate: ticket.creationDate,
-            closureDate: ticket.closureDate ?? null,
-            orderInBoard: ticket.orderInBoard ?? 0,
-            tags: ticket.tags,
-            progress: ticket.progress,
-            checkList: ticket.checkList,
-            attachments: ticket.attachments,
-            avatar: ticket.avatar,
-            supportRequestId: ticket.supportRequestId,
-            createdBy: ticket.createdBy,
-            comments: ticket.comments
-        };
-    }
-
+    /** Drag & drop de columnas (sin refresh adicional) */
     onDropColumn(event: CdkDragDrop<KanbanColumn[]>) {
         moveItemInArray(this.columns, event.previousIndex, event.currentIndex);
     }
@@ -124,28 +115,13 @@ export class KanbanComponent implements OnInit, OnDestroy {
     }
 
     get dropListIds(): string[] {
-        return this.columns.map((column) => column.id);
+        return this.columns.map(c => c.id);
     }
 
-    onTicketCreated(ticket: TicketResponse) {
-        if (!ticket.estado?.id) {
-            console.warn('Ticket creado sin Estado válido:', ticket);
-            return;
-        }
-
-        const colId = ticket.estado.id.toString();
-        const column = this.columns.find(c => c.id === colId);
-
-        if (!column) {
-            console.warn(`No se encontró la columna para el estado ${ticket.estado.id}`);
-            return;
-        }
-
-        // Inserta el KanbanCard en la posición según su orden
-        const card = this.mapToKanbanCard(ticket);
-        column.cards.push(card);
-
-        // Reordena la columna antes de renderizar
-        column.cards.sort((a, b) => (a.orderInBoard || 0) - (b.orderInBoard || 0));
+    /** Al crear/editar un ticket desde el form */
+    onTicketSaved(ticket: TicketResponse) {
+        // Podemos recargar todo o solo la columna afectada.
+        // Aquí recargamos todo para garantizar consistencia:
+        this.reloadCards();
     }
 }

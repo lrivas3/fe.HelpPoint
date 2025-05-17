@@ -15,7 +15,7 @@ export interface KanbanCard {
     checkList: number | null;
     attachments: string[] | null;
     avatar: string[] | null;
-    supportRequestId?: string;
+    supportRequestId?: string | null;
     createdBy: UserLookUpResponse;
     comments: ComentResponse[];
 }

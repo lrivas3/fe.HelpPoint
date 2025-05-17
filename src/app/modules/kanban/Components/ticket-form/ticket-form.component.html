@@ -10,7 +10,7 @@
     <ng-template #header>
         <div class="flex items-center p-2 ml-3 mb-3">
             <span class="font-semibold text-xl">
-                {{ selectedTicket.title || 'Nuevo Ticket' }}
+                {{ workingTicket.title || 'Nuevo Ticket' }}
             </span>
         </div>
     </ng-template>
@@ -25,7 +25,7 @@
                     <label for="title" class="text-left mb-2">Título</label>
                     <input pInputText
                            id="title"
-                           [(ngModel)]="selectedTicket.title"
+                           [(ngModel)]="workingTicket.title"
                            placeholder="Ingrese el título del ticket"
                            [style]="{ width: '100%' }" />
                 </div>
@@ -52,7 +52,7 @@
 
                 <textarea rows="5" cols="30" pTextarea
                           id="description"
-                          [(ngModel)]="selectedTicket.description"
+                          [(ngModel)]="workingTicket.description"
                           [style]="{ height: '320px', width: '100%' }"
                 ></textarea>
                 <!-- File upload area -->
@@ -87,7 +87,7 @@
                 </div>
 
                 <!-- Lista de comentarios -->
-                <div *ngFor="let comment of selectedTicket.comments" class="flex items-center rounded border p-2">
+                <div *ngFor="let comment of workingTicket.comments" class="flex items-center rounded border p-2">
                     <!-- Avatar genérico -->
                     <p-avatar icon="pi pi-user"
                               shape="circle"
@@ -127,7 +127,7 @@
                 <p-select
                     id="estado"
                     [options]="estadosOptions"
-                    [(ngModel)]="selectedTicket.estado.id"
+                    [(ngModel)]="workingTicket.estado.id"
                     placeholder="Estado">
                 </p-select>
             </div>
@@ -136,17 +136,17 @@
                 <p-select
                     id="prioridad"
                     [options]="priorityOptions"
-                    [(ngModel)]="selectedTicket.prioridad.id"
+                    [(ngModel)]="workingTicket.prioridad.id"
                     placeholder="Prioridad">
                 </p-select>
             </div>
             <div class="flex flex-col mb-4">
                 <label for="fechaCreacion" class="mb-2">Fecha de Creación</label>
-                <p id="fechaCreacion"> {{ selectedTicket.creationDate | date: 'EEEE, MMMM dd' }} </p>
+                <p id="fechaCreacion"> {{ workingTicket.creationDate | date: 'EEEE, MMMM dd' }} </p>
             </div>
             <div class="flex flex-col mb-4">
                 <label for="fechaCierre" class="mb-2">Fecha de Cierre</label>
-                <p id="fechaCierre"> {{ selectedTicket.closureDate | date: 'EEEE, MMMM dd' }} </p>
+                <p id="fechaCierre"> {{ workingTicket.closureDate | date: 'EEEE, MMMM dd' }} </p>
             </div>
         </div>
     </div>
