@@ -87,37 +87,29 @@
                 </div>
 
                 <!-- Lista de comentarios -->
-                <div *ngFor="let comment of comments" class="flex items-center rounded border p-2">
-                    <!-- Avatar del comentario (si existe imagen, se muestra; de lo contrario, se usa un ícono por defecto) -->
-                    <p-avatar
-                        *ngIf="comment.avatarUrl; else defaultAvatar"
-                        image="{{ comment.avatarUrl }}"
-                        shape="circle"
-                        size="large"
-                        styleClass="w-14 h-14 mr-4">
+                <div *ngFor="let comment of selectedTicket.comments" class="flex items-center rounded border p-2">
+                    <!-- Avatar genérico -->
+                    <p-avatar icon="pi pi-user"
+                              shape="circle"
+                              size="large"
+                              styleClass="w-14 h-14 mr-4 bg-surface-200 dark:bg-surface-800">
                     </p-avatar>
-                    <ng-template #defaultAvatar>
-                        <p-avatar
-                            icon="pi pi-user"
-                            shape="circle"
-                            size="large"
-                            styleClass="w-14 h-14 mr-4 bg-surface-200 dark:bg-surface-800">
-                        </p-avatar>
-                    </ng-template>
-                    <!-- Contenido del comentario -->
+
+                    <!-- Contenido -->
                     <div class="ml-4 w-full">
                         <div class="flex justify-between mb-2">
-                            <span class="block text-surface-900 dark:text-surface-0">
-                              {{ comment.name }}
-                            </span>
-                            <span class="block text-surface-700 dark:text-surface-100">
-                              {{ comment.timestamp }}
-                            </span>
+                          <span class="block text-surface-900 dark:text-surface-0">
+                            {{ comment.user.createdByUserName }}
+                          </span>
+                                                <span class="block text-surface-700 dark:text-surface-100">
+                            {{ comment.fechaCreacion | date:'EEEE, MMMM dd, y HH:mm' }}
+                          </span>
                         </div>
-                        <span
-                            class="block text-surface-900 dark:text-surface-0 border bg-surface-50 dark:bg-surface-950 border-surface p-2 rounded"
-                            style="word-break: break-all;">
-                            {{ comment.content }}
+                        <span class="block text-surface-900 dark:text-surface-0
+                             border bg-surface-50 dark:bg-surface-950
+                             border-surface p-2 rounded"
+                              style="word-break: break-all;">
+                          {{ comment.comentario }}
                         </span>
                     </div>
                 </div>
