@@ -5,7 +5,7 @@ export interface TicketRequest {
     EstadoId: number;
     TipoId: number;
     PrioridadId: number;
-    SupportRequestId?: string;
+    SupportRequestId?: string | null;
 }
 
 export interface PartialTicketRequest {
@@ -15,5 +15,6 @@ export interface PartialTicketRequest {
     EstadoId?: number;
     TipoId?: number;
     PrioridadId?: number;
-    SupportRequestId?: string;
+    SupportRequestId?: string | null;
+    FechaCierre?: string | null;
 }

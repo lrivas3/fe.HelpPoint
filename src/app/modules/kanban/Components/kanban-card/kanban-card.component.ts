@@ -10,8 +10,6 @@ import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
 import { ToastService } from '@services/toast.service';
 import { TicketService } from '@kanban/services/ticket.service';
-import { TicketFormComponent } from '../ticket-form/ticket-form.component';
-import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
     selector: 'app-kanban-card',
@@ -23,14 +21,13 @@ import { DialogService } from 'primeng/dynamicdialog';
         CdkDragPlaceholder, NgStyle],
     templateUrl: './kanban-card.component.html',
     styleUrl: './kanban-card.component.scss',
-    providers: [DialogService]
 })
 export class KanbanCardComponent implements OnInit {
     @Input() ticketCard!: KanbanCard;
     elementHeight: number = 0;
     items: MenuItem[] = [];
 
-    constructor(private toastService: ToastService, private ticketService: TicketService, private dialogService: DialogService) {}
+    constructor(private toastService: ToastService, private ticketService: TicketService) {}
 
     ngOnInit() {
         this.items = [
@@ -53,12 +50,7 @@ export class KanbanCardComponent implements OnInit {
     }
 
     openTicketForm() {
-        this.dialogService.open(TicketFormComponent, {
-            header: 'Editar Ticket',
-            width: '70%',
-            closable: true,
-            data: { ticket: this.ticketCard }
-        });
+        this.ticketService.setSelectedTicket(this.ticketCard)
     }
 
     deleteTicket() {

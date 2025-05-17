@@ -14,10 +14,11 @@ import { Tag } from 'primeng/tag';
 import { Avatar } from 'primeng/avatar';
 import { InputText } from 'primeng/inputtext';
 import { Textarea } from 'primeng/textarea';
-import { TicketResponse } from '@models/ticket/ticket-response.model';
-import { TicketRequest } from '@models/ticket/ticket-request.model';
+import { ComentResponse, TicketResponse } from '@models/ticket/ticket-response.model';
+import { PartialTicketRequest, TicketRequest } from '@models/ticket/ticket-request.model';
 import { ToastService } from '@services/toast.service';
 import { ToastSeverity } from '@models/toast-severity';
+import { TicketCommentRequest } from '@models/ticket/ticket-comment-request';
 
 @Component({
     selector: 'app-ticket-form',
@@ -32,6 +33,7 @@ export class TicketFormComponent implements OnInit {
     defaultStateCode: number = 1;
     defaultPriorityCode: number = 2;
     defaultTipoId: number = 1;
+    commentText: string = '';
 
     selectedTicket: KanbanCard = {
         id: '',
@@ -82,39 +84,75 @@ export class TicketFormComponent implements OnInit {
     }
 
     saveTicket(): void {
-        if (!this.selectedTicket.title) {
+        // 1) Validaciones básicas
+        if (!this.selectedTicket.title?.trim()) {
             this.toastService.show(ToastSeverity.Error, 'Error', 'El título es requerido');
             return;
         }
 
-        const estadoId = this.selectedTicket.estado.id || this.defaultStateCode;
+        // 2) Determinar IDs (o fallback a defaults)
+        const estadoId    = this.selectedTicket.estado?.id   ?? this.defaultStateCode;
+        const tipoId      = this.selectedTicket.tipo?.id     ?? this.defaultTipoId;
+        const prioridadId = this.selectedTicket.prioridad?.id ?? this.defaultPriorityCode;
 
-        const prioridadId = this.selectedTicket.prioridad.id || this.defaultPriorityCode;
+        // 3) ¿UPDATE o CREATE?
+        if (this.selectedTicket.id) {
+            // ==== ACTUALIZAR ====
+            const updateReq: PartialTicketRequest = {
+                Titulo:         this.selectedTicket.title,
+                Descripcion:    this.selectedTicket.description?.trim() || undefined,
+                EstadoId:       estadoId,
+                TipoId:         tipoId,
+                PrioridadId:    prioridadId,
+                OrdenEnTablero: this.selectedTicket.orderInBoard,
+                SupportRequestId: this.selectedTicket.supportRequestId || null
+            };
 
-        const tipoId = this.selectedTicket.tipo.id || this.defaultTipoId;
+            // Si cambiamos a "Cerrado" (id=3), setear FechaCierre; si no, null para reabrir
+            updateReq.FechaCierre = (estadoId === 3)
+                ? new Date().toISOString()
+                : null;
 
-        const req: TicketRequest = {
-            Titulo: this.selectedTicket.title,
-            Descripcion: this.selectedTicket.description ?? undefined,
-            EstadoId: estadoId,
-            TipoId: tipoId,
-            PrioridadId: prioridadId,
-            OrdenEnTablero: this.selectedTicket.orderInBoard,
-            SupportRequestId: this.selectedTicket.supportRequestId
-        };
+            this.ticketService.updateTicket(this.selectedTicket.id, updateReq)
+                .subscribe({
+                    next: (updated: TicketResponse) => {
+                        this.toastService.show(ToastSeverity.Success, 'Éxito', 'Ticket actualizado');
+                        this.visible = false;
+                        this.ticketService.clearSelectedTicket();
+                        this.ticketCreated.emit(updated);
+                    },
+                    error: err => {
+                        console.error('Error al actualizar ticket', err);
+                        this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudo actualizar el ticket');
+                    }
+                });
 
-        this.ticketService.createTicket(req).subscribe({
-            next: (t: TicketResponse) => {
-                this.ticketCreated.emit(t);
-                this.visible = false;
-                this.ticketService.clearSelectedTicket();
-                this.toastService.show(ToastSeverity.Success, 'Éxito', 'Ticket creado exitosamente');
-            },
-            error: err => {
-                console.error('Error al crear ticket', err);
-                this.toastService.show(ToastSeverity.Error, 'Error', 'Error al crear el ticket. Por favor, intente nuevamente.');
-            }
-        });
+        } else {
+            // ==== CREAR ====
+            const createReq: TicketRequest = {
+                Titulo:         this.selectedTicket.title,
+                Descripcion:    this.selectedTicket.description?.trim() || undefined,
+                EstadoId:       estadoId,
+                TipoId:         tipoId,
+                PrioridadId:    prioridadId,
+                OrdenEnTablero: this.selectedTicket.orderInBoard,
+                SupportRequestId: this.selectedTicket.supportRequestId || null
+            };
+
+            this.ticketService.createTicket(createReq)
+                .subscribe({
+                    next: (created: TicketResponse) => {
+                        this.toastService.show(ToastSeverity.Success, 'Éxito', 'Ticket creado exitosamente');
+                        this.visible = false;
+                        this.ticketService.clearSelectedTicket();
+                        this.ticketCreated.emit(created);
+                    },
+                    error: err => {
+                        console.error('Error al crear ticket', err);
+                        this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudo crear el ticket');
+                    }
+                });
+        }
     }
 
     cancel(): void {
@@ -124,4 +162,25 @@ export class TicketFormComponent implements OnInit {
 
     removeTag(success: string) {}
 
+    addComment(): void {
+        const text = this.commentText.trim();
+        if (!text) {
+            this.toastService.show(ToastSeverity.Error, 'Error', 'El comentario no puede estar vacío');
+            return;
+        }
+        const req: TicketCommentRequest = { Comentario: text };
+        this.ticketService.addComment(this.selectedTicket.id, req)
+            .subscribe({
+                next: (c: ComentResponse) => {
+                    // Inserta en local sin recargar
+                    this.selectedTicket.comments.push(c);
+                    this.commentText = '';
+                    this.toastService.show(ToastSeverity.Success, '¡Listo!', 'Comentario agregado');
+                },
+                error: err => {
+                    console.error('Error al agregar comentario', err);
+                    this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudo agregar el comentario');
+                }
+            });
+    }
 }

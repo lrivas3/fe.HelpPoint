@@ -3,8 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { KanbanCard } from '@models/kanban/kanban-card.model';
 import { TicketRequest, PartialTicketRequest } from '@models/ticket/ticket-request.model';
-import { TicketResponse } from '@models/ticket/ticket-response.model';
+import { ComentResponse, TicketResponse } from '@models/ticket/ticket-response.model';
 import { environment } from '@environments/environment';
+import { TicketCommentRequest } from '@models/ticket/ticket-comment-request';
 
 @Injectable({
     providedIn: 'root'
@@ -46,5 +47,11 @@ export class TicketService {
     /** Actualiza un ticket existente */
     updateTicket(id: string, request: PartialTicketRequest): Observable<TicketResponse> {
         return this.http.put<TicketResponse>(`${this.baseUrl}/${id}`, request);
+    }
+    addComment(ticketId: string, comment: TicketCommentRequest): Observable<ComentResponse> {
+        return this.http.post<ComentResponse>(
+            `${this.baseUrl}/${ticketId}/comments`,
+            comment
+        );
     }
 }
