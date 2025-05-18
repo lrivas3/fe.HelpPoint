@@ -24,7 +24,6 @@ import { KanbanCardComponent } from '@kanban/Components/kanban-card/kanban-card.
         CdkDropList,
         KanbanColumnComponent,
         TicketFormComponent,
-        KanbanCardComponent
     ]
 })
 export class KanbanComponent implements OnInit, OnDestroy {

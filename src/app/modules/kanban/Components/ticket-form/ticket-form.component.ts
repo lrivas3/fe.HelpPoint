@@ -35,7 +35,6 @@ import { TicketCommentRequest } from '@models/ticket/ticket-comment-request';
         Avatar,
         InputText,
         NgForOf,
-        NgIf,
         Textarea
     ],
     templateUrl: './ticket-form.component.html',
@@ -135,16 +134,14 @@ export class TicketFormComponent implements OnInit {
 
         // 3) Crear DTO base para update
         const baseReq: PartialTicketRequest = {
-            Titulo:         this.workingTicket.title.trim(),
-            Descripcion:    this.workingTicket.description?.trim() || undefined,
-            EstadoId:       estadoId,
-            TipoId:         tipoId,
-            PrioridadId:    prioridadId,
+            Titulo: this.workingTicket.title.trim(),
+            Descripcion: this.workingTicket.description?.trim() ?? undefined,
+            EstadoId: estadoId,
+            TipoId: tipoId,
+            PrioridadId: prioridadId,
             OrdenEnTablero: this.workingTicket.orderInBoard,
-            SupportRequestId: this.workingTicket.supportRequestId || null,
-            FechaCierre:    (estadoId === 3)
-                ? new Date().toISOString()
-                : null
+            SupportRequestId: this.workingTicket.supportRequestId ?? null,
+            FechaCierre: estadoId === 3 ? new Date().toISOString() : null
         };
 
         if (this.workingTicket.id) {
