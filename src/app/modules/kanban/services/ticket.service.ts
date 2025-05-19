@@ -26,6 +26,7 @@ export class TicketService {
 
     /** Establece el ticket actual y muestra el formulario */
     setSelectedTicket(ticket: KanbanCard): void {
+        this.clearSelectedTicket();
         this.selectedTicket.set(ticket);
     }
 
