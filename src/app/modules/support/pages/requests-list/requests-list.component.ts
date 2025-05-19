@@ -1,129 +1,67 @@
 import { Component, OnInit } from '@angular/core';
-import { Table, TableModule } from 'primeng/table';
 import { Button } from 'primeng/button';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { DatePipe, NgClass, NgIf } from '@angular/common';
+import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
-import { InputText } from 'primeng/inputtext';
-import { Dialog } from 'primeng/dialog';
-import { TicketFormComponent } from '@kanban/Components/ticket-form/ticket-form.component';
+import { DialogModule } from 'primeng/dialog';
 import { TicketService } from '@kanban/services/ticket.service';
-import { KanbanCard } from '@models/kanban/kanban-card.model';
+import { SupportRequestResponse } from '@models/support/support-request-response.model';
+import { SupportRequestService } from '@services/support/support-request.service';
+import { Tag } from 'primeng/tag';
+import { Card } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { TicketFormComponent } from '@kanban/Components/ticket-form/ticket-form.component';
 
 @Component({
     selector: 'app-requests-list',
-    imports: [TableModule, Button, IconField, InputIcon, DatePipe, NgClass, FormsModule, DropdownModule, InputText, Dialog, NgIf, TicketFormComponent],
+    imports: [Button, DatePipe, FormsModule, DropdownModule, DialogModule, NgIf, Tag, Card, NgForOf, TableModule, TicketFormComponent],
     templateUrl: './requests-list.component.html',
     standalone: true,
     styleUrl: './requests-list.component.scss'
 })
 export class RequestsListComponent implements OnInit {
-    reviewDialogVisible: boolean = false;
-    visible: boolean = false;
-    selectedTicket: any = null;
-    tickets!: any[];
+    tickets: SupportRequestResponse[] = [];
+    loading = false;
+    selectedTicket?: SupportRequestResponse;
+    visible = false;
 
-    representatives!: any[];
-
-    statuses!: any[];
-
-    loading: boolean = true;
-
-    activityValues: number[] = [0, 100];
-
-    searchValue: string | undefined;
-
-    defaultStateCode: number = 1;
-    defaultPriorityCode: number = 2;
-    defaultTipoId: number = 1;
-
-    constructor(private readonly ticketService: TicketService) {}
+    constructor(
+        private readonly supportService: SupportRequestService,
+        private readonly ticketService: TicketService
+    ) {}
 
     ngOnInit() {
-        this.loading = false;
-        // this.customerService.getCustomersLarge().then((customers) => {
-        //     this.customers = customers;
-        //     this.loading = false;
-        //
-        //     this.customers.forEach((customer) => (customer.date = new Date(<Date>customer.date)));
-        // });
-
-        this.tickets = [
-            { titulo: 'Soporte para la unidad financiera', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta'},
-            { titulo: 'Cambio de monitor', descripcion: 'se arruino mi monitor', fecha: '2030230', verified: true, prioridad: 'alta' },
-            { titulo: 'Cambio de teclado', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta' },
-            { titulo: 'Problemas de red', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta' },
-            { titulo: 'Mala conexion', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta' },
-            { titulo: 'Renovacion de licencia', descripcion: 'peticion de soporte', fecha: '2030230', verified: true, prioridad: 'alta' },
-        ]
-
-        this.representatives = [
-            { name: 'Amy Elsner', image: 'amyelsner.png' },
-            { name: 'Anna Fali', image: 'annafali.png' },
-            { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-            { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-            { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-            { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-            { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-            { name: 'Onyama Limba', image: 'onyamalimba.png' },
-            { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-            { name: 'Xuxue Feng', image: 'xuxuefeng.png' }
-        ];
-
-        this.statuses = [
-            { label: 'Unqualified', value: 'unqualified' },
-            { label: 'Qualified', value: 'qualified' },
-            { label: 'New', value: 'new' },
-            { label: 'Negotiation', value: 'negotiation' },
-            { label: 'Renewal', value: 'renewal' },
-            { label: 'Proposal', value: 'proposal' }
-        ];
+        this.loading = true;
+        this.supportService.getSupportRequests().subscribe({
+            next: (data) => {
+                this.tickets = data;
+                this.loading = false;
+            },
+            error: (err) => {
+                console.error('Error cargando solicitudes', err);
+                this.loading = false;
+            }
+        });
     }
 
-    clear(table: Table) {
-        table.clear();
-        this.searchValue = '';
-    }
-
-    // getSeverity(status: string) {
-    //     switch (status.toLowerCase()) {
-    //         case 'unqualified':
-    //             return 'danger';
-    //
-    //         case 'qualified':
-    //             return 'success';
-    //
-    //         case 'new':
-    //             return 'info';
-    //
-    //         case 'negotiation':
-    //             return 'warn';
-    //
-    //         case 'renewal':
-    //             return null;
-    //     }
-    // }
-    getSeverity(label: string | null | undefined | BufferSource | HTMLLabelElement) {
-        return undefined;
-    }
-
-    showDialog(ticket: any) {
-        this.selectedTicket = ticket;
+    showDialog(req: SupportRequestResponse) {
+        this.selectedTicket = req;
         this.visible = true;
     }
+
     acceptReview() {
-        const req: any = this.selectedTicket;
-        const card: KanbanCard = {
+        if (!this.selectedTicket) return;
+        // Transforma la solicitud en un KanbanCard
+        const req = this.selectedTicket;
+        const card = {
             id: '',
             title: req.titulo,
             description: req.descripcion,
-            estado:       { id: this.defaultStateCode, nombre:  '' },
-            tipo:         { id: this.defaultTipoId, nombre: '' },
-            prioridad:    { id: this.defaultPriorityCode, nombre: '' },
-            creationDate: new Date().toDateString(),
-            closureDate:   null,
+            estado: { id: 1, nombre: '' },
+            tipo: { id: 1, nombre: '' },
+            prioridad: { id: 1, nombre: '' },
+            creationDate: new Date(req.fechaCreacion).toDateString(),
+            closureDate: null,
             orderInBoard: 0,
             tags: [],
             progress: null,
@@ -131,31 +69,19 @@ export class RequestsListComponent implements OnInit {
             attachments: [],
             avatar: [],
             supportRequestId: req.id,
-            createdBy:    { createdByUserId: '', createdByUserName: '' },
-            comments:     []
+            createdBy: { createdByUserId: '', createdByUserName: '' },
+            comments: []
         };
 
-        // 1) setea el KanbanCard completo en el servicio…
         this.ticketService.setSelectedTicket(card);
-        // 2) cierra el modal de revisión
         this.visible = false;
-        this.selectedTicket = null;
+
+        // Opcional: eliminarla de la lista
+        this.tickets = this.tickets.filter((r) => r.id !== req.id);
     }
 
     rejectReview() {
         this.visible = false;
-        this.selectedTicket = null;
-    }
-
-    // Opcional: manejar cuando el ticket ya fue creado
-    onTicketCreated(event: any) {
-        console.log('Ticket creado desde RequestsList:', event);
-        // ...por ejemplo eliminar la request de la lista
-        this.tickets = this.tickets.filter(r => r.id !== event.id);
-    }
-
-    private closeDialog() {
-        this.visible = false;
-        this.selectedTicket = null;
+        this.selectedTicket = undefined;
     }
 }

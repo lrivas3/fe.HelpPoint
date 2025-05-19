@@ -1,3 +1,8 @@
+export interface Attachment {
+    name: string;
+    url:  string;
+}
+
 export interface SupportRequestResponse {
     id: string;
     titulo: string;
@@ -8,4 +13,5 @@ export interface SupportRequestResponse {
     empleadoId?: string;
     email: string;
     tokenVerificacion: boolean;
+    attachments?: Attachment[];
 }

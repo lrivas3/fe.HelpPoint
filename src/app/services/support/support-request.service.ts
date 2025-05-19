@@ -7,13 +7,14 @@ import { environment } from '@environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class SupportRequestService {
-    private baseUrl = `${environment.API_URL}/api/v1/supports`;
+    private readonly baseUrl = `${environment.API_URL}/api/v1/supports`;
 
-    constructor(private http: HttpClient) {}
+    constructor(private readonly http: HttpClient) {}
 
-    createSupportRequest(
-        payload: SupportRequestRequest
-    ): Observable<SupportRequestResponse> {
+    createSupportRequest(payload: SupportRequestRequest): Observable<SupportRequestResponse> {
         return this.http.post<SupportRequestResponse>(this.baseUrl, payload);
+    }
+    getSupportRequests(): Observable<SupportRequestResponse[]> {
+        return this.http.get<SupportRequestResponse[]>(this.baseUrl);
     }
 }
