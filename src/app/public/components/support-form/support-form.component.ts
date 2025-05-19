@@ -13,6 +13,8 @@ import { ToastSeverity } from '@models/toast-severity';
 import { PrimeNG } from 'primeng/config';
 import { RecaptchaModule } from 'ng-recaptcha';
 import { environment } from '@environments/environment';
+import { SupportRequestService } from '@services/support/support-request.service';
+import { SupportRequestRequest } from '@models/support/support-request-request.model';
 
 interface UploadEvent {
     originalEvent: Event;
@@ -39,15 +41,49 @@ interface UploadEvent {
   styleUrl: './support-form.component.scss'
 })
 export class SupportFormComponent {
+
+    supportRequest: SupportRequestRequest = { email: '', descripcion: '' };
+    loading = false;
+
     siteKey = environment.recaptchaSiteKey;
-    constructor(private config: PrimeNG,private toastService: ToastService) {
+    constructor(private config: PrimeNG,
+                private supportService: SupportRequestService,
+                private toastService: ToastService) {
     }
-    dropdownItem: any;
-    dropdownItems: any[] | undefined;
     uploadedFiles: any[] = [];
-
     sendSRequest() {
+        if (!this.supportRequest.email || !this.supportRequest.descripcion) {
+            this.toastService.show(
+                ToastSeverity.Warn,
+                'Atención',
+                'Debe completar email y descripción'
+            );
+            return;
+        }
 
+        this.loading = true;
+        this.supportService.createSupportRequest(this.supportRequest)
+            .subscribe({
+                next: (res) => {
+                    this.toastService.show(
+                        ToastSeverity.Success,
+                        'Éxito',
+                        'Solicitud enviada correctamente'
+                    );
+                    // Limpiar formulario
+                    this.supportRequest = { email: '', descripcion: '' };
+                    this.loading = false;
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.toastService.show(
+                        ToastSeverity.Error,
+                        'Error',
+                        'No se pudo enviar la solicitud'
+                    );
+                    this.loading = false;
+                }
+            });
     }
 
     executeRecaptcha(token: any) {
@@ -58,7 +94,6 @@ export class SupportFormComponent {
         for(let file of event.files) {
             this.uploadedFiles.push(file);
         }
-
 
         this.toastService.show(ToastSeverity.Info, 'Exito', 'Archivo subido con exito');
     }
