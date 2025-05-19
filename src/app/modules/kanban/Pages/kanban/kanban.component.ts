@@ -62,6 +62,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.estadosSubscription?.unsubscribe();
         this.ticketsChangedSubscription?.unsubscribe();
+        this.ticketService.clearSelectedTicket();
     }
 
     /** Crea las columnas y carga sus tarjetas */

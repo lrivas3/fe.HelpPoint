@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Button } from 'primeng/button';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,7 @@ import { Tag } from 'primeng/tag';
 import { Card } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TicketFormComponent } from '@kanban/Components/ticket-form/ticket-form.component';
+import { TicketResponse } from '@models/ticket/ticket-response.model';
 
 @Component({
     selector: 'app-requests-list',
@@ -19,7 +20,7 @@ import { TicketFormComponent } from '@kanban/Components/ticket-form/ticket-form.
     standalone: true,
     styleUrl: './requests-list.component.scss'
 })
-export class RequestsListComponent implements OnInit {
+export class RequestsListComponent implements OnInit, OnDestroy {
     tickets: SupportRequestResponse[] = [];
     loading = false;
     selectedTicket?: SupportRequestResponse;
@@ -32,16 +33,11 @@ export class RequestsListComponent implements OnInit {
 
     ngOnInit() {
         this.loading = true;
-        this.supportService.getSupportRequests().subscribe({
-            next: (data) => {
-                this.tickets = data;
-                this.loading = false;
-            },
-            error: (err) => {
-                console.error('Error cargando solicitudes', err);
-                this.loading = false;
-            }
-        });
+        this.loadSpRequests();
+    }
+
+    ngOnDestroy() {
+        this.ticketService.clearSelectedTicket();
     }
 
     showDialog(req: SupportRequestResponse) {
@@ -75,13 +71,28 @@ export class RequestsListComponent implements OnInit {
 
         this.ticketService.setSelectedTicket(card);
         this.visible = false;
-
-        // Opcional: eliminarla de la lista
-        this.tickets = this.tickets.filter((r) => r.id !== req.id);
     }
 
     rejectReview() {
         this.visible = false;
         this.selectedTicket = undefined;
+
+        this.loadSpRequests();
+    }
+    loadSpRequests(){
+        this.supportService.getSupportRequests().subscribe({
+            next: (data) => {
+                this.tickets = data;
+                this.loading = false;
+            },
+            error: (err) => {
+                console.error('Error cargando solicitudes', err);
+                this.loading = false;
+            }
+        });
+    }
+
+    onTicketCreated(ticket: TicketResponse) {
+        this.tickets = this.tickets.filter(r => r.id !== ticket.supportRequestId);
     }
 }
