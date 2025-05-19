@@ -12,6 +12,17 @@
             <span class="font-semibold text-xl">
                 {{ workingTicket.title || 'Nuevo Ticket' }}
             </span>
+            <button
+                *ngIf="workingTicket.id"
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                (click)="deleteTicket()"
+                [disabled]="loading"
+                pTooltip="Eliminar ticket"
+                tooltipPosition="top"
+            ></button>
         </div>
     </ng-template>
 
@@ -87,7 +98,7 @@
                 </div>
 
                 <!-- Lista de comentarios -->
-                <div *ngFor="let comment of workingTicket.comments" class="flex items-center rounded border p-2">
+                <div *ngFor="let comment of workingTicket.comments" class="flex items-center rounded p-2">
                     <!-- Avatar genérico -->
                     <p-avatar icon="pi pi-user"
                               shape="circle"
@@ -105,10 +116,9 @@
                             {{ comment.fechaCreacion | date:'EEEE, MMMM dd, y HH:mm' }}
                           </span>
                         </div>
-                        <span class="block text-surface-900 dark:text-surface-0
-                             border bg-surface-50 dark:bg-surface-950
-                             border-surface p-2 rounded"
-                              style="word-break: break-all;">
+                        <span
+                            class="text-surface-700 dark:text-surface-100 inline-block font-medium border border-surface-200 dark:border-surface-700 p-4 whitespace-normal rounded"
+                            style="word-break: break-word; max-width: 80%;">
                           {{ comment.comentario }}
                         </span>
                     </div>

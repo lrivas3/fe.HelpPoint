@@ -18,5 +18,7 @@
     </div>
 </div>
 <app-ticket-form
-    (ticketCreated)="onTicketSaved($event)">
+    (ticketCreated)="onTicketSaved($event)"
+    (ticketDeleted)="onTicketDeleted($event)"
+>
 </app-ticket-form>

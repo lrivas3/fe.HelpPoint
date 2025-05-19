@@ -124,4 +124,10 @@ export class KanbanComponent implements OnInit, OnDestroy {
         // Aquí recargamos todo para garantizar consistencia:
         this.reloadCards();
     }
+
+    onTicketDeleted(deletedId: string) {
+        this.columns.forEach(col => {
+            col.cards = col.cards.filter(card => card.id !== deletedId);
+        });
+    }
 }

@@ -76,4 +76,10 @@ export class TicketService {
     moveTicket(payload: ReorderPayload): Observable<any>{
         return this.http.put(`${this.baseUrl}/reorder`, payload)
     }
+    /** Delete a ticket */
+    deleteTicket(id: string): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
+            tap(() => this.clearSelectedTicket())
+        );
+    }
 }
