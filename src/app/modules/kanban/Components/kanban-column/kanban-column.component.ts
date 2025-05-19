@@ -93,10 +93,17 @@ export class KanbanColumnComponent {
             transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
         }
 
+        const newEstadoId   = Number(this.column.id);
+        const newEstadoName = this.column.title;
+        event.container.data.forEach(card => {
+            card.estado = { id: newEstadoId, nombre: newEstadoName };
+            card.orderInBoard = event.container.data.indexOf(card);
+        });
+
         // 2) Build the batch payload
         const tickets: ReorderTicket[] = event.container.data.map((card, index) => ({
             TicketId: card.id,
-            EstadoId: Number(event.container.id),
+            EstadoId: newEstadoId,
             OrdenEnTablero: index
         }));
         const payload: ReorderPayload = { tickets };
