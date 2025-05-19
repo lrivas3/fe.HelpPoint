@@ -6,6 +6,7 @@ import { TicketRequest, PartialTicketRequest } from '@models/ticket/ticket-reque
 import { ComentResponse, TicketResponse } from '@models/ticket/ticket-response.model';
 import { environment } from '@environments/environment';
 import { TicketCommentRequest } from '@models/ticket/ticket-comment-request';
+import { ReorderPayload, ReorderTicket } from '@models/ticket/move-ticket-request';
 
 @Injectable({
     providedIn: 'root'
@@ -68,5 +69,10 @@ export class TicketService {
             .pipe(
                 tap(() => this._ticketsChanged$.next())
             );
+    }
+
+    /** Mueve los tickets de estado (en el dashboard)*/
+    moveTicket(payload: ReorderPayload): Observable<any>{
+        return this.http.put(`${this.baseUrl}/reorder`, payload)
     }
 }

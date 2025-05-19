@@ -12,7 +12,9 @@ import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { TicketService } from '@kanban/services/ticket.service';
 import { TicketResponse } from '@models/ticket/ticket-response.model';
-import { PartialTicketRequest } from '@models/ticket/ticket-request.model';
+import { ReorderPayload, ReorderTicket } from '@models/ticket/move-ticket-request';
+import { ToastService } from '@services/toast.service';
+import { ToastSeverity } from '@models/toast-severity';
 
 @Component({
     selector: 'app-kanban-column',
@@ -34,7 +36,10 @@ export class KanbanColumnComponent {
 
     items: MenuItem[] | undefined;
 
-    constructor(private readonly ticketService: TicketService) {
+    constructor(
+        private readonly ticketService: TicketService,
+        private readonly toastService: ToastService
+    ) {
         this.items = [
             {
                 label: 'Opciones',
@@ -81,27 +86,28 @@ export class KanbanColumnComponent {
     }
 
     onCardDrop(event: CdkDragDrop<KanbanCard[]>) {
+        // 1) Update the in-memory array so the UI moves the card
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else {
-            transferArrayItem(
-                event.previousContainer.data,
-                event.container.data,
-                event.previousIndex,
-                event.currentIndex
-            );
+            transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
         }
 
-        // Actualizar el orden en el backend
-        event.container.data.forEach((card, index) => {
-            const updateRequest: PartialTicketRequest = {
-                OrdenEnTablero: index,
-                EstadoId: parseInt(event.container.id)
-            };
-            this.ticketService.updateTicket(card.id, updateRequest).subscribe({
-                next: () => console.log(`Orden actualizado para el ticket ${card.id}`),
-                error: (err) => console.error(`Error al actualizar el orden del ticket ${card.id}:`, err)
-            });
+        // 2) Build the batch payload
+        const tickets: ReorderTicket[] = event.container.data.map((card, index) => ({
+            TicketId: card.id,
+            EstadoId: Number(event.container.id),
+            OrdenEnTablero: index
+        }));
+        const payload: ReorderPayload = { tickets };
+
+        // 3) Send one HTTP call for all moved cards
+        this.ticketService.moveTicket(payload).subscribe({
+            next: () => this.toastService.show(ToastSeverity.Success, 'Éxito', 'Orden de tickets actualizado correctamente'),
+            error: (err) => {
+                this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudo reordenar los tickets');
+                console.error('Error al reordenar tickets:', err);
+            }
         });
     }
 
@@ -123,8 +129,7 @@ export class KanbanColumnComponent {
             avatar: null,
             supportRequestId: undefined,
             createdBy: { createdByUserId: '', createdByUserName: '' },
-            comments: [],
-
+            comments: []
         };
         this.ticketService.setSelectedTicket(newCard);
     }
@@ -138,6 +143,6 @@ export class KanbanColumnComponent {
     }
 
     get connectedDropListIds(): string[] {
-        return this.dropListIds.filter(id => id !== this.column.id);
+        return this.dropListIds.filter((id) => id !== this.column.id);
     }
 }
