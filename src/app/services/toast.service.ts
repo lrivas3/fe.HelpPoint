@@ -6,8 +6,7 @@ import { ToastSeverity } from '@models/toast-severity';
     providedIn: 'root'
 })
 export class ToastService {
-
-    constructor(private messageService: MessageService) { }
+    constructor(private messageService: MessageService) {}
 
     show(severity: ToastSeverity, summary: string, detail: string): void;
     show(severity: ToastSeverity, summary: string, detail: string, life: number): void;
@@ -55,3 +54,5 @@ export class ToastService {
         this.messageService.clear();
     }
 }
+export { ToastSeverity };
+

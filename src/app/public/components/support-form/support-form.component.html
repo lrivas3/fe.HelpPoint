@@ -33,9 +33,15 @@
                                 name="email"
                                 type="email"
                                 required
+                                email
+                                #emailInput="ngModel"
                                 [(ngModel)]="supportRequest.email"
                                 class="w-full p-3 border border-solid border-surface-300 dark:border-surface-700 rounded"
                             />
+                        </div>
+                        <div *ngIf="emailInput.invalid && emailInput.touched" class="text-p-error text-sm mt-1">
+                            <small *ngIf="emailInput.errors?.['required']">El correo es obligatorio.</small>
+                            <small *ngIf="emailInput.errors?.['email']">Email no es válido.</small>
                         </div>
                     </div>
 
@@ -53,9 +59,13 @@
                             name="descripcion"
                             rows="4"
                             required
+                            #descInput="ngModel"
                             [(ngModel)]="supportRequest.descripcion"
                             class="w-full p-3 border border-solid border-surface-300 dark:border-surface-700 rounded"
                         ></textarea>
+                        <div *ngIf="descInput.invalid && descInput.touched" class="text-p-error text-sm mt-1">
+                            <small *ngIf="descInput.errors?.['required']">La descripción es obligatoria.</small>
+                        </div>
                     </div>
 
                     <!-- Área de subida de archivos -->
@@ -111,6 +121,9 @@
                             (resolved)="executeRecaptcha($event)"
                             [siteKey]="siteKey"
                         ></re-captcha>
+                        <div *ngIf="!captchaResolved" class="text-p-error text-sm mt-1 text-center">
+                            <small>Por favor completa el captcha.</small>
+                        </div>
                     </div>
 
                     <!-- Botón de envío -->
@@ -121,7 +134,7 @@
                             label="Enviar solicitud"
                             icon="pi pi-send font-semibold"
                             class="p-ripple py-4 font-semibold w-full max-w-sm rounded p-button p-component"
-                            [disabled]="loading || form.invalid"
+                            [disabled]="loading || form.invalid || !captchaResolved"
                         ></button>
                     </div>
 

@@ -16,13 +16,8 @@ import { environment } from '@environments/environment';
 import { SupportRequestService } from '@services/support/support-request.service';
 import { SupportRequestRequest } from '@models/support/support-request-request.model';
 
-interface UploadEvent {
-    originalEvent: Event;
-    files: File[];
-}
-
 @Component({
-  selector: 'app-support-form',
+    selector: 'app-support-form',
     imports: [
         Fluid,
         InputText,
@@ -37,21 +32,39 @@ interface UploadEvent {
         Button,
         RecaptchaModule
     ],
-  templateUrl: './support-form.component.html',
-  styleUrl: './support-form.component.scss'
+    templateUrl: './support-form.component.html',
+    styleUrls: ['./support-form.component.scss']
 })
 export class SupportFormComponent {
-
     supportRequest: SupportRequestRequest = { email: '', descripcion: '' };
     loading = false;
 
+    // reCAPTCHA state
+    captchaResolved = false;
+    recaptchaToken: string | null = null;
+
     siteKey = environment.recaptchaSiteKey;
-    constructor(private config: PrimeNG,
-                private supportService: SupportRequestService,
-                private toastService: ToastService) {
-    }
+
     uploadedFiles: any[] = [];
+
+    constructor(
+        private config: PrimeNG,
+        private supportService: SupportRequestService,
+        private toastService: ToastService
+    ) {}
+
     sendSRequest() {
+        // Ensure captcha completed
+        if (!this.captchaResolved) {
+            this.toastService.show(
+                ToastSeverity.Warn,
+                'Atención',
+                'Por favor completa el captcha.'
+            );
+            return;
+        }
+
+        // Validate form fields
         if (!this.supportRequest.email || !this.supportRequest.descripcion) {
             this.toastService.show(
                 ToastSeverity.Warn,
@@ -62,7 +75,11 @@ export class SupportFormComponent {
         }
 
         this.loading = true;
-        this.supportService.createSupportRequest(this.supportRequest)
+        // Send support request (token included if backend expects it)
+        const payload: any = { ...this.supportRequest };
+        if (this.recaptchaToken) payload.tokenVerificacion = this.recaptchaToken;
+
+        this.supportService.createSupportRequest(payload)
             .subscribe({
                 next: (res) => {
                     this.toastService.show(
@@ -70,35 +87,35 @@ export class SupportFormComponent {
                         'Éxito',
                         'Solicitud enviada correctamente'
                     );
-                    // Limpiar formulario
                     this.supportRequest = { email: '', descripcion: '' };
+                    this.captchaResolved = false;
+                    this.recaptchaToken = null;
                     this.loading = false;
                 },
-                error: (err) => {
-                    console.error(err);
-                    this.toastService.show(
-                        ToastSeverity.Error,
-                        'Error',
-                        'No se pudo enviar la solicitud'
-                    );
+                error: () => {
+                    // Interceptor handles toast; just reset loading
                     this.loading = false;
                 }
             });
     }
 
-    executeRecaptcha(token: any) {
-        console.log(token);
+    executeRecaptcha(token: string | null) {
+        this.recaptchaToken = token;
+        this.captchaResolved = !!token;
     }
 
     onUpload(event: FileUploadEvent) {
-        for(let file of event.files) {
+        for (let file of event.files) {
             this.uploadedFiles.push(file);
         }
-
-        this.toastService.show(ToastSeverity.Info, 'Exito', 'Archivo subido con exito');
+        this.toastService.show(
+            ToastSeverity.Info,
+            'Éxito',
+            'Archivo subido con éxito'
+        );
     }
 
-    choose({ event, callback }: { event: any, callback: any }) {
+    choose({ event, callback }: { event: any; callback: () => void }) {
         callback();
     }
 }

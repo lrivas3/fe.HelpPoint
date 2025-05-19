@@ -14,6 +14,7 @@ import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import { MessageService } from 'primeng/api';
 import { tokenInterceptor } from '@interceptors/token.interceptor';
+import { errorInterceptor } from '@interceptors/errors.interceptor';
 
 registerLocaleData(localeEs);
 
@@ -24,7 +25,7 @@ export const appConfig: ApplicationConfig = {
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         provideHttpClient(
             withFetch(),
-            withInterceptors([tokenInterceptor])
+            withInterceptors([tokenInterceptor, errorInterceptor])
         ),
         provideAnimationsAsync(),
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } })
