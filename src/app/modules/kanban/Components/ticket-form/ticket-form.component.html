@@ -12,17 +12,6 @@
             <span class="font-semibold text-xl">
                 {{ workingTicket.title || 'Nuevo Ticket' }}
             </span>
-            <button
-                *ngIf="workingTicket.id"
-                pButton
-                type="button"
-                icon="pi pi-trash"
-                class="p-button-rounded p-button-danger"
-                (click)="deleteTicket()"
-                [disabled]="loading"
-                pTooltip="Eliminar ticket"
-                tooltipPosition="top"
-            ></button>
         </div>
     </ng-template>
 
@@ -162,6 +151,17 @@
     </div>
 
     <ng-template #footer>
+        <button
+            *ngIf="workingTicket.id"
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger ml-10 mr-10"
+            (click)="deleteTicket()"
+            [disabled]="loading"
+            pTooltip="Eliminar ticket"
+            tooltipPosition="top"
+        ></button>
         <p-button label="Cancel" [text]="true" severity="secondary" (click)="cancel()"></p-button>
         <p-button label="Save" [outlined]="true" severity="secondary" (click)="saveTicket()"></p-button>
     </ng-template>
