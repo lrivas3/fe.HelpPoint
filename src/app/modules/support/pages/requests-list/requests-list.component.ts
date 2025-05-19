@@ -74,10 +74,20 @@ export class RequestsListComponent implements OnInit, OnDestroy {
     }
 
     rejectReview() {
+        if (!this.selectedTicket) return;
         this.visible = false;
+        const deleteId: string  = this.selectedTicket.id;
+        this.supportService.rejectSupportRequest(deleteId).subscribe({
+            next: () => {
+                this.tickets = this.tickets.filter(r => r.id !== deleteId);
+                this.loading = false;
+            },
+            error: (err) => {
+                console.error('Error Al eliminar', err);
+                this.loading = false;
+            }
+        });
         this.selectedTicket = undefined;
-
-        this.loadSpRequests();
     }
     loadSpRequests(){
         this.supportService.getSupportRequests().subscribe({

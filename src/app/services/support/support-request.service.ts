@@ -17,4 +17,7 @@ export class SupportRequestService {
     getSupportRequests(): Observable<SupportRequestResponse[]> {
         return this.http.get<SupportRequestResponse[]>(this.baseUrl);
     }
+    rejectSupportRequest(id: string): Observable<any>{
+        return this.http.delete(`${this.baseUrl}/${id}`);
+    }
 }
