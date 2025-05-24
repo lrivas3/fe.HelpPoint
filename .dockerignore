@@ -1,0 +1,42 @@
+# Dependencias de Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Archivos de compilación
+dist
+build
+coverage
+
+# Configuración de entorno local
+.env
+.env.local
+.env.*.local
+
+# Configuración de IDEs y editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Sistema de archivos
+.DS_Store
+Thumbs.db
+
+# Control de versiones
+.git
+.gitignore
+
+# Logs
+logs/
+*.log
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+
+# Otros
+**.swp
+
