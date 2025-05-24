@@ -55,11 +55,12 @@
         <!-- Bottom row: Avatars, stats, etc. -->
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <p-avatar-group>
-                    <p-avatar *ngFor="let comment of ticketCard.comments"
-                             [label]="comment.user.createdByUserName[0]"
-                             [style]="{'background-color': '#9c27b0', 'color': '#ffffff'}"
-                             shape="circle">
+                <p-avatar-group *ngIf="ticketCard.assignedUsers?.length">
+                    <p-avatar *ngFor="let user of ticketCard.assignedUsers"
+                              [label]="user.avatar"
+                              [style]="{'background-color': '#2196f3', 'color': '#fff'}"
+                              shape="circle"
+                              tooltipPosition="top">
                     </p-avatar>
                 </p-avatar-group>
             </div>

@@ -14,20 +14,19 @@ import { TicketService } from '@kanban/services/ticket.service';
 @Component({
     selector: 'app-kanban-card',
     standalone: true,
-    imports: [Avatar, AvatarGroup,
-        Button, CdkDrag, CdkDragHandle,
-        NgForOf, NgIf,
-        Tag, Menu, DatePipe,
-        CdkDragPlaceholder, NgStyle],
+    imports: [Avatar, AvatarGroup, Button, CdkDrag, CdkDragHandle, NgForOf, NgIf, Tag, Menu, DatePipe, CdkDragPlaceholder, NgStyle],
     templateUrl: './kanban-card.component.html',
-    styleUrl: './kanban-card.component.scss',
+    styleUrl: './kanban-card.component.scss'
 })
 export class KanbanCardComponent implements OnInit {
     @Input() ticketCard!: KanbanCard;
     elementHeight: number = 0;
     items: MenuItem[] = [];
 
-    constructor(private toastService: ToastService, private ticketService: TicketService) {}
+    constructor(
+        private readonly toastService: ToastService,
+        private ticketService: TicketService
+    ) {}
 
     ngOnInit() {
         this.items = [
@@ -42,6 +41,14 @@ export class KanbanCardComponent implements OnInit {
                 command: () => this.deleteTicket()
             }
         ];
+        this.ticketService.listAssignedUsers(this.ticketCard.id).subscribe({
+            next: (users) => {
+                this.ticketCard.assignedUsers = users ?? [];
+            },
+            error: (err) => {
+                console.error('Error al cargar usuarios asignados', err);
+            }
+        });
     }
 
     onDragStarted(event: CdkDragStart) {
@@ -50,7 +57,7 @@ export class KanbanCardComponent implements OnInit {
     }
 
     openTicketForm() {
-        this.ticketService.setSelectedTicket(this.ticketCard)
+        this.ticketService.setSelectedTicket(this.ticketCard);
     }
 
     deleteTicket() {

@@ -6,7 +6,8 @@ import { TicketRequest, PartialTicketRequest } from '@models/ticket/ticket-reque
 import { ComentResponse, TicketResponse } from '@models/ticket/ticket-response.model';
 import { environment } from '@environments/environment';
 import { TicketCommentRequest } from '@models/ticket/ticket-comment-request';
-import { ReorderPayload, ReorderTicket } from '@models/ticket/move-ticket-request';
+import { ReorderPayload } from '@models/ticket/move-ticket-request';
+import { User } from '@models/user.model';
 
 @Injectable({
     providedIn: 'root'
@@ -81,5 +82,8 @@ export class TicketService {
         return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
             tap(() => this.clearSelectedTicket())
         );
+    }
+    listAssignedUsers(ticketId: string): Observable<User[]> {
+        return this.http.get<User[]>(`${this.baseUrl}/${ticketId}/get-assigned`);
     }
 }

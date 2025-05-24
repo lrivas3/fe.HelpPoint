@@ -1,4 +1,5 @@
 import { LookUpResponse, UserLookUpResponse, ComentResponse } from '@models/ticket/ticket-response.model';
+import { User } from '@models/user.model';
 
 export interface KanbanCard {
     id: string;
@@ -18,4 +19,5 @@ export interface KanbanCard {
     supportRequestId?: string | null;
     createdBy: UserLookUpResponse;
     comments: ComentResponse[];
+    assignedUsers?: User[];
 }
