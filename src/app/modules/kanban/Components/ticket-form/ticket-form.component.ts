@@ -6,7 +6,7 @@ import { KanbanCard } from '@models/kanban/kanban-card.model';
 import { FormsModule } from '@angular/forms';
 import { Divider } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
-import { PSelectableModel } from '@models/prime-components-options/p-selectable.model';
+import { PSelectableModel, PSelectableStrModel } from '@models/prime-components-options/p-selectable.model';
 import { CatalogoServiceService } from '@kanban/services/catalogo.service.service';
 import { Select } from 'primeng/select';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
@@ -20,11 +20,13 @@ import { ToastService } from '@services/toast.service';
 import { ToastSeverity } from '@models/toast-severity';
 import { TicketCommentRequest } from '@models/ticket/ticket-comment-request';
 import { Tooltip } from 'primeng/tooltip';
+import { UsersService } from '@services/users.service';
+import { MultiSelect } from 'primeng/multiselect';
 
 @Component({
     selector: 'app-ticket-form',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, Divider, DropdownModule, Select, DatePipe, Tag, Avatar, InputText, NgForOf, Textarea, Tooltip, ButtonDirective, NgIf],
+    imports: [Dialog, Button, FormsModule, Divider, DropdownModule, Select, DatePipe, Tag, Avatar, InputText, NgForOf, Textarea, Tooltip, ButtonDirective, NgIf, MultiSelect],
     templateUrl: './ticket-form.component.html',
     styleUrl: './ticket-form.component.scss'
 })
@@ -70,12 +72,16 @@ export class TicketFormComponent implements OnInit {
     /** Opciones para selects */
     estadosOptions: PSelectableModel[] = [];
     priorityOptions: PSelectableModel[] = [];
+    usersOptions: PSelectableStrModel[] = [];
+    multiselectVisible = false;
+    selectedUserIds: string[] = [];
     protected loading: boolean = false;
 
     constructor(
         private readonly ticketService: TicketService,
         public readonly catalogoService: CatalogoServiceService,
-        private readonly toastService: ToastService
+        private readonly toastService: ToastService,
+        private readonly usersService: UsersService
     ) {
         // Al recibir un ticket, clonar y abrir diálogo
         effect(() => {
@@ -85,6 +91,14 @@ export class TicketFormComponent implements OnInit {
                 // deep clone para aislar cambios
                 this.workingTicket = JSON.parse(JSON.stringify(ticket));
                 this.commentText = '';
+
+                // Cargar usuarios asignados si el ticket tiene ID
+                if (ticket.id) {
+                    this.loadAssignedUsers();
+                } else {
+                    this.selectedUserIds = [];
+                }
+
                 this.showDialog();
             }
         });
@@ -97,6 +111,68 @@ export class TicketFormComponent implements OnInit {
         });
         this.catalogoService.getPrioridades().subscribe((prioridades) => {
             this.priorityOptions = prioridades;
+        });
+
+        // Cargar usuarios disponibles
+        this.loadAvailableUsers();
+    }
+
+    /**
+     * Carga la lista de usuarios disponibles para asignar
+     */
+    loadAvailableUsers(): void {
+        this.usersService.getUsers().subscribe({
+            next: (users) => {
+                this.usersOptions = users.map((user) => ({
+                    label: `${user.name} ${user.lastName}`,
+                    value: user.id
+                }));
+
+                // Si hay un ticket seleccionado, cargar sus usuarios asignados
+                if (this.workingTicket.id) {
+                    this.loadAssignedUsers();
+                }
+            },
+            error: (err) => {
+                console.error('Error al cargar usuarios', err);
+                this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudieron cargar los usuarios');
+            }
+        });
+    }
+
+    /**
+     * Carga los usuarios asignados al ticket actual
+     */
+    loadAssignedUsers(): void {
+        if (!this.workingTicket.id) return;
+
+        this.ticketService.listAssignedUsers(this.workingTicket.id).subscribe({
+            next: (users) => {
+                this.workingTicket.assignedUsers = users || [];
+                this.selectedUserIds = users.map((user) => user.id);
+            },
+            error: (err) => {
+                console.error('Error al cargar usuarios asignados', err);
+                this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudieron cargar los usuarios asignados');
+            }
+        });
+    }
+
+    /**
+     * Maneja el cambio en la selección de usuarios
+     */
+    onUserSelectionChange(): void {
+        if (!this.workingTicket.id) return;
+
+        this.ticketService.assignUsers(this.workingTicket.id, this.selectedUserIds).subscribe({
+            next: (users) => {
+                this.workingTicket.assignedUsers = users;
+                this.toastService.show(ToastSeverity.Success, 'Éxito', 'Usuarios asignados correctamente');
+            },
+            error: (err) => {
+                console.error('Error al asignar usuarios', err);
+                this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudieron asignar los usuarios');
+            }
         });
     }
 
@@ -201,26 +277,68 @@ export class TicketFormComponent implements OnInit {
     deleteTicket(): void {
         if (!this.workingTicket.id) return;
         this.loading = true;
-        this.ticketService.deleteTicket(this.workingTicket.id)
+        this.ticketService.deleteTicket(this.workingTicket.id).subscribe({
+            next: () => {
+                this.toastService.show(ToastSeverity.Success, 'Eliminado', 'El ticket ha sido borrado');
+                this.loading = false;
+                this.visible = false;
+                this.ticketService.clearSelectedTicket();
+                this.ticketDeleted.emit(this.workingTicket.id);
+            },
+            error: () => {
+                this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudo eliminar el ticket');
+                this.loading = false;
+            }
+        });
+    }
+
+    getUserById(id: string): { id: string; name: string; lastName?: string; avatar: string } | undefined {
+        return this.workingTicket.assignedUsers?.find(u => u.id === id);
+    }
+
+    /**
+     * Quita un usuario de la selección de chips y llama al backend para borrarlo
+     */
+    removeUser(userId: string, event: MouseEvent): void {
+        event.stopPropagation();
+
+        // 1) Filtramos inmediatamente la lista de IDs seleccionados
+        this.selectedUserIds = this.selectedUserIds.filter(id => id !== userId);
+
+        // 2) Si aún no tenemos ticket en BD, nada más limpiamos los chips
+        if (!this.workingTicket.id) {
+            return;
+        }
+
+        // 3) También filtramos la lista de assignedUsers para que la UI refleje el cambio
+        this.workingTicket.assignedUsers =
+            this.workingTicket.assignedUsers?.filter(u => u.id !== userId) ?? [];
+
+        // 4) Llamamos al endpoint para que borre en el servidor
+        this.ticketService.deleteAssignedUsers(this.workingTicket.id, [userId])
             .subscribe({
-                next: () => {
-                    this.toastService.show(
-                        ToastSeverity.Success,
-                        'Eliminado',
-                        'El ticket ha sido borrado'
-                    );
-                    this.loading = false;
-                    this.visible = false;
-                    this.ticketService.clearSelectedTicket();
-                    this.ticketDeleted.emit(this.workingTicket.id);
+                next: (success: boolean) => {
+                    if (success) {
+                        this.toastService.show(
+                            ToastSeverity.Success,
+                            'Éxito',
+                            'Usuario desasignado correctamente'
+                        );
+                    } else {
+                        this.toastService.show(
+                            ToastSeverity.Warn,
+                            'Aviso',
+                            'No se pudo desasignar el usuario en el servidor'
+                        );
+                    }
                 },
-                error: () => {
+                error: (err) => {
+                    console.error('Error al desasignar usuario', err);
                     this.toastService.show(
                         ToastSeverity.Error,
                         'Error',
-                        'No se pudo eliminar el ticket'
+                        'Fallo al desasignar usuario'
                     );
-                    this.loading = false;
                 }
             });
     }

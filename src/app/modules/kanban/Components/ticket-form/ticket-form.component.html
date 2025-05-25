@@ -82,7 +82,8 @@
                            type="text"
                            [(ngModel)]="commentText"
                            placeholder="Escribe un comentario…"
-                           [style]="{width: '100%'}" />
+                           [style]="{width: '100%'}"
+                           (keyup.enter)="addComment()" />
                     <p-button label="Add" (click)="addComment()" styleClass="ml-2"></p-button>
                 </div>
 
@@ -146,6 +147,30 @@
             <div class="flex flex-col mb-4">
                 <label for="fechaCierre" class="mb-2">Fecha de Cierre</label>
                 <p id="fechaCierre"> {{ workingTicket.closureDate | date: 'EEEE, MMMM dd' }} </p>
+            </div>
+            <div class="flex flex-col mb-4">
+                <label for="usuariosAsignados" class="mb-2" style="color: var(--primary-color);">
+                    Usuarios Asignados
+                </label>
+                <p-multiSelect
+                    id="usuariosAsignados"
+                    [options]="usersOptions"
+                    [(ngModel)]="selectedUserIds"
+                    display="comma"
+                    placeholder="Seleccionar usuarios"
+                    [filter]="true"
+                    styleClass="wrap-multiselect"
+                    (onPanelShow)="multiselectVisible = true"
+                    (onPanelHide)="multiselectVisible = false"
+                    (ngModelChange)="onUserSelectionChange()"
+                >
+                    <ng-template let-item pTemplate="selectedItem">
+    <span class="custom-chip">
+      {{ item.label }}
+        <i class="pi pi-times" (click)="removeUser(item.value, $event)"></i>
+    </span>
+                    </ng-template>
+                </p-multiSelect>
             </div>
         </div>
     </div>

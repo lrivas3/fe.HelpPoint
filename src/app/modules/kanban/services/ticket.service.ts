@@ -84,6 +84,21 @@ export class TicketService {
         );
     }
     listAssignedUsers(ticketId: string): Observable<User[]> {
-        return this.http.get<User[]>(`${this.baseUrl}/${ticketId}/get-assigned`);
+        return this.http.get<User[]>(`${this.baseUrl}/${ticketId}/assigned`);
+    }
+
+    /** Asigna usuarios a un ticket */
+    assignUsers(ticketId: string, userIds: string[]): Observable<User[]> {
+        return this.http.post<User[]>(`${this.baseUrl}/${ticketId}/assigned`, { users: userIds })
+            .pipe(
+                tap(() => this._ticketsChanged$.next())
+            );
+    }
+
+    deleteAssignedUsers(ticketId: string, userIds: string[]): Observable<boolean> {
+        return this.http.post<boolean>(`${this.baseUrl}/${ticketId}/assigned/delete`, { users: userIds })
+            .pipe(
+                tap(() => this._ticketsChanged$.next())
+            );
     }
 }
