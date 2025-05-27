@@ -22,6 +22,7 @@ import { TicketCommentRequest } from '@models/ticket/ticket-comment-request';
 import { Tooltip } from 'primeng/tooltip';
 import { UsersService } from '@services/users.service';
 import { MultiSelect } from 'primeng/multiselect';
+import {User} from "@models/user.model";
 
 @Component({
     selector: 'app-ticket-form',
@@ -159,21 +160,32 @@ export class TicketFormComponent implements OnInit {
     }
 
     /**
-     * Maneja el cambio en la selección de usuarios
+     * Llamado siempre que cambie la selección en el multiselect.
+     * Envía la lista completa de selectedUserIds al backend.
      */
     onUserSelectionChange(): void {
-        if (!this.workingTicket.id) return;
-
-        this.ticketService.assignUsers(this.workingTicket.id, this.selectedUserIds).subscribe({
-            next: (users) => {
-                this.workingTicket.assignedUsers = users;
-                this.toastService.show(ToastSeverity.Success, 'Éxito', 'Usuarios asignados correctamente');
-            },
-            error: (err) => {
-                console.error('Error al asignar usuarios', err);
-                this.toastService.show(ToastSeverity.Error, 'Error', 'No se pudieron asignar los usuarios');
-            }
-        });
+        if (!this.workingTicket.id) {
+            return;
+        }
+        this.ticketService
+            .assignUsers(this.workingTicket.id, this.selectedUserIds)
+            .subscribe({
+                next: (users: User[]) => {
+                    this.workingTicket.assignedUsers = users;
+                    this.toastService.show(
+                        ToastSeverity.Success,
+                        'Éxito',
+                        'Asignación de usuarios actualizada'
+                    );
+                },
+                error: () => {
+                    this.toastService.show(
+                        ToastSeverity.Error,
+                        'Error',
+                        'No se pudo actualizar la asignación de usuarios'
+                    );
+                }
+            });
     }
 
     showDialog(): void {
@@ -290,56 +302,5 @@ export class TicketFormComponent implements OnInit {
                 this.loading = false;
             }
         });
-    }
-
-    getUserById(id: string): { id: string; name: string; lastName?: string; avatar: string } | undefined {
-        return this.workingTicket.assignedUsers?.find(u => u.id === id);
-    }
-
-    /**
-     * Quita un usuario de la selección de chips y llama al backend para borrarlo
-     */
-    removeUser(userId: string, event: MouseEvent): void {
-        event.stopPropagation();
-
-        // 1) Filtramos inmediatamente la lista de IDs seleccionados
-        this.selectedUserIds = this.selectedUserIds.filter(id => id !== userId);
-
-        // 2) Si aún no tenemos ticket en BD, nada más limpiamos los chips
-        if (!this.workingTicket.id) {
-            return;
-        }
-
-        // 3) También filtramos la lista de assignedUsers para que la UI refleje el cambio
-        this.workingTicket.assignedUsers =
-            this.workingTicket.assignedUsers?.filter(u => u.id !== userId) ?? [];
-
-        // 4) Llamamos al endpoint para que borre en el servidor
-        this.ticketService.deleteAssignedUsers(this.workingTicket.id, [userId])
-            .subscribe({
-                next: (success: boolean) => {
-                    if (success) {
-                        this.toastService.show(
-                            ToastSeverity.Success,
-                            'Éxito',
-                            'Usuario desasignado correctamente'
-                        );
-                    } else {
-                        this.toastService.show(
-                            ToastSeverity.Warn,
-                            'Aviso',
-                            'No se pudo desasignar el usuario en el servidor'
-                        );
-                    }
-                },
-                error: (err) => {
-                    console.error('Error al desasignar usuario', err);
-                    this.toastService.show(
-                        ToastSeverity.Error,
-                        'Error',
-                        'Fallo al desasignar usuario'
-                    );
-                }
-            });
     }
 }

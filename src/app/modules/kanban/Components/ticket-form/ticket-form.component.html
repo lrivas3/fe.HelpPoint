@@ -148,29 +148,19 @@
                 <label for="fechaCierre" class="mb-2">Fecha de Cierre</label>
                 <p id="fechaCierre"> {{ workingTicket.closureDate | date: 'EEEE, MMMM dd' }} </p>
             </div>
+            <!-- ticket-form.component.html -->
             <div class="flex flex-col mb-4">
-                <label for="usuariosAsignados" class="mb-2" style="color: var(--primary-color);">
-                    Usuarios Asignados
-                </label>
+                <label for="usuariosAsignados" class="mb-2">Usuarios Asignados</label>
                 <p-multiSelect
                     id="usuariosAsignados"
                     [options]="usersOptions"
                     [(ngModel)]="selectedUserIds"
-                    display="comma"
                     placeholder="Seleccionar usuarios"
+                    display="comma"
                     [filter]="true"
                     styleClass="wrap-multiselect"
-                    (onPanelShow)="multiselectVisible = true"
-                    (onPanelHide)="multiselectVisible = false"
-                    (ngModelChange)="onUserSelectionChange()"
-                >
-                    <ng-template let-item pTemplate="selectedItem">
-    <span class="custom-chip">
-      {{ item.label }}
-        <i class="pi pi-times" (click)="removeUser(item.value, $event)"></i>
-    </span>
-                    </ng-template>
-                </p-multiSelect>
+                    (onChange)="onUserSelectionChange()"
+                ></p-multiSelect>
             </div>
         </div>
     </div>

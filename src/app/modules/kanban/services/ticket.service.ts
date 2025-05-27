@@ -94,11 +94,4 @@ export class TicketService {
                 tap(() => this._ticketsChanged$.next())
             );
     }
-
-    deleteAssignedUsers(ticketId: string, userIds: string[]): Observable<boolean> {
-        return this.http.post<boolean>(`${this.baseUrl}/${ticketId}/assigned/delete`, { users: userIds })
-            .pipe(
-                tap(() => this._ticketsChanged$.next())
-            );
-    }
 }
