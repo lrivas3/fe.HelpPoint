@@ -17,6 +17,48 @@
         "importHelpers": true,
         "target": "ES2022",
         "module": "ES2022",
+        "baseUrl": "./",
+        "paths": {
+            "@public/*": [
+                "src/app/public/*"
+            ],
+            "@support-request/*": [
+                "src/app/public/pages/support-request/*"
+            ],
+            "@models/*": [
+                "src/app/models/*"
+            ],
+            "@modules/*": [
+                "src/app/modules/*"
+            ],
+            "@kanban/*": [
+                "src/app/modules/kanban/*"
+            ],
+            "@shared/*": [
+                "src/app/modules/shared/*"
+            ],
+            "@auth/*": [
+                "src/app/modules/auth/*"
+            ],
+            "@boards/*": [
+                "src/app/modules/boards/*"
+            ],
+            "@environments/*": [
+                "src/environments/*"
+            ],
+            "@guards/*": [
+                "src/app/guards/*"
+            ],
+            "@interceptors/*": [
+                "src/app/interceptors/*"
+            ],
+            "@services/*": [
+                "src/app/services/*"
+            ],
+            "@utils/*": [
+                "src/app/utils/*"
+            ]
+        }
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false,

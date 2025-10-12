@@ -1,0 +1,113 @@
+<p-table
+    #dt
+    [value]="tickets"
+    dataKey="id"
+    [rows]="10"
+    [rowsPerPageOptions]="[10,25,50]"
+    [loading]="loading"
+    [paginator]="true"
+>
+    <ng-template #header>
+        <tr>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Fecha</th>
+            <th>Captcha OK</th>
+            <th>Acciones</th>
+        </tr>
+    </ng-template>
+
+    <ng-template #body let-ticket>
+        <tr>
+            <td>{{ ticket.titulo }}</td>
+            <td>{{ ticket.descripcion }}</td>
+            <td>{{ ticket.fechaCreacion | date:'short' }}</td>
+            <td class="text-center">
+                <p-tag
+                    [value]="ticket.tokenVerificacion ? 'Verificado' : 'No verificado'"
+                    [severity]="ticket.tokenVerificacion ? 'success' : 'danger'"
+                ></p-tag>
+            </td>
+            <td>
+                <p-button
+                    label="Revisar"
+                    icon="pi pi-eye"
+                    class="p-button-rounded p-button-outlined"
+                    (click)="showDialog(ticket)"
+                ></p-button>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+        <tr>
+            <td colspan="5">No hay solicitudes.</td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog
+    header="Revisión de Solicitud"
+    [(visible)]="visible"
+    modal
+    [style]="{ width: '40vw' }"
+    [breakpoints]="{ '960px':'90vw', '640px':'100vw' }"
+>
+    <p-card class="p-p-4 p-mb-4 p-shadow-2 p-border-round">
+        <ng-template pTemplate="title">
+            <span class="text-xl font-bold">{{ selectedTicket?.titulo }}</span>
+        </ng-template>
+        <ng-template pTemplate="subTitle">
+            <p-tag [value]="selectedTicket?.nombreEstado" severity="info"></p-tag>
+        </ng-template>
+
+        <ng-template pTemplate="content">
+            <div class="p-fluid p-formgrid p-grid">
+                <div class="p-field p-col-12 p-mt-2 p-mb-2">
+                    <label class="font-semibold">Descripción:</label>
+                    <p>{{ selectedTicket?.descripcion }}</p>
+                </div>
+                <div class="p-field p-col-6 p-mt-2 p-mb-2">
+                    <label class="font-semibold">Fecha de creación:</label>
+                    <p>{{ selectedTicket?.fechaCreacion | date:'fullDate' }}</p>
+                </div>
+                <div class="p-field p-col-6 p-mt-2 p-mb-2">
+                    <label class="font-semibold">Email:</label>
+                    <p>{{ selectedTicket?.email }}</p>
+                </div>
+                <ng-container *ngIf="selectedTicket?.attachments as files; else noAttach">
+                    <label class="font-semibold p-col-12">Archivos adjuntos:</label>
+                    <ul>
+                        <li *ngFor="let file of files">
+                            <a [href]="file.url" target="_blank">{{ file.name }}</a>
+                        </li>
+                    </ul>
+                </ng-container>
+                <ng-template #noAttach>
+                    <label class="font-semibold p-col-12">Archivos adjuntos:</label>
+                    <p-tag value="Sin adjuntos" severity="warn"></p-tag>
+                </ng-template>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <p-button
+                label="Rechazar"
+                severity="danger"
+                icon="pi pi-times"
+                class="p-button-text p-mt-2 p-mb-2 mr-5"
+                (click)="rejectReview()"
+            ></p-button>
+            <p-button
+                label="Aceptar"
+                severity="success"
+                icon="pi pi-check"
+                (click)="acceptReview()"
+            ></p-button>
+        </ng-template>
+    </p-card>
+</p-dialog>
+
+<app-ticket-form
+    (ticketCreated)="onTicketCreated($event)"
+></app-ticket-form>

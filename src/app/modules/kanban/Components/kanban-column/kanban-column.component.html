@@ -1,0 +1,49 @@
+<div class="card md:w-[25rem] flex-shrink-0 p-kanban-list border border-surface px-1.5 h-fit">
+    <!-- Column Header -->
+    <div class="flex justify-between items-center w-full px-4 py-3">
+        <p-inplace>
+            <ng-template pTemplate="display">
+                <span class="text-lg font-semibold">{{ column.title }}</span>
+            </ng-template>
+            <ng-template pTemplate="content">
+                <div class="inline-flex items-center gap-1 h-10">
+                    <input
+                        type="text"
+                        [(ngModel)]="column.title"
+                        pInputText
+                        class="p-inputtext p-component h-full !rounded-r-none w-[10rem]"
+                    />
+                    <p-button
+                        icon="pi pi-check"
+                        (click)="confirmEdit()">
+                    </p-button>
+                </div>
+            </ng-template>
+        </p-inplace>
+        <p-menu #menu [model]="items" [popup]="true"></p-menu>
+        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-icon-only p-button-text"
+                (click)="menu.toggle($event)">
+        </button>
+    </div>
+
+    <!-- Cards List -->
+    <div cdkDropList
+         [id]="column.id"
+         [cdkDropListData]="column.cards"
+         [cdkDropListConnectedTo]="connectedDropListIds"
+         class="cdk-drop-list flex flex-col gap-4 mt-6"
+         (cdkDropListDropped)="onCardDrop($event)"
+         style="min-height: 100px;">
+        <ng-container *ngIf="column.cards.length; else emptyList">
+            <app-kanban-card *ngFor="let card of column.cards" [ticketCard]="card"></app-kanban-card>
+        </ng-container>
+            <ng-template #emptyList>
+            <div class="empty-drop-area" style="height: 50px;"></div>
+        </ng-template>
+    </div>
+
+    <!-- Add New Card -->
+    <div class="px-4 mb-4 w-full mt-6 flex">
+        <button pButton label="Nuevo Ticket" icon="pi pi-plus" class="p-button p-component w-full" (click)="addCard()"></button>
+    </div>
+</div>

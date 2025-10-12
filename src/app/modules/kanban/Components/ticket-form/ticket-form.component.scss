@@ -1,0 +1,33 @@
+/* Hace que el host .wrap-multiselect sea inline-block y no fije ancho */
+.wrap-multiselect {
+    display: inline-block;
+    width: auto !important;
+}
+
+/* El contenedor interno de PrimeNG también en auto */
+.wrap-multiselect .p-multiselect {
+    width: auto !important;
+}
+
+/* Permite que los chips fluyan y hagan wrap */
+.wrap-multiselect .p-multiselect-label-container {
+    display: inline-flex;
+    flex-wrap: wrap;
+    width: auto !important;
+}
+
+/* Espaciado y estilo para cada chip custom */
+.wrap-multiselect .custom-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+    margin: 0.1rem;
+    background-color: var(--surface-b);
+}
+
+/* Icono de cierre dentro del chip */
+.wrap-multiselect .custom-chip .pi-times {
+    margin-left: 0.3rem;
+    cursor: pointer;
+}

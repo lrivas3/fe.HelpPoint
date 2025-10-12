@@ -1,0 +1,24 @@
+<div id="kanban-wrapper" cdkDropList [cdkDropListData]="columns" cdkDropListOrientation="horizontal"
+     (cdkDropListDropped)="onDropColumn($event)" class="cdk-drop-list flex gap-8 w-full flex-nowrap overflow-x-auto h-screen">
+
+    <app-kanban-column *ngFor="let column of columns"
+                       [column]="column"
+                       [dropListIds]="dropListIds">
+    </app-kanban-column>
+
+    <!-- Add New List Button -->
+    <div class="px-4 py-1 mb-4 md:w-[25rem] shrink-0">
+        <button
+            pButton
+            label="Nueva Lista"
+            icon="pi pi-plus font-semibold"
+            class="p-ripple py-4 justify-center font-semibold w-full rounded p-button p-component"
+            (click)="addColumn()"
+        ></button>
+    </div>
+</div>
+<app-ticket-form
+    (ticketCreated)="onTicketSaved($event)"
+    (ticketDeleted)="onTicketDeleted($event)"
+>
+</app-ticket-form>

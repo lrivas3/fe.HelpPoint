@@ -1,0 +1,183 @@
+<p-dialog
+    [(visible)]="visible"
+    [draggable]="false"
+    [closeOnEscape]="true"
+    [dismissableMask]="true"
+    [modal]="true"
+    [style]="{ width: '70rem' }">
+
+    <!-- Header del dialog con un título compacto -->
+    <ng-template #header>
+        <div class="flex items-center p-2 ml-3 mb-3">
+            <span class="font-semibold text-xl">
+                {{ workingTicket.title || 'Nuevo Ticket' }}
+            </span>
+        </div>
+    </ng-template>
+
+    <!-- Cuerpo del dialog dividido en 2 columnas -->
+    <div class="flex pl-5 pr-5">
+        <!-- Columna Izquierda (4/5 del ancho): Descripción -->
+        <div class="w-4/5">
+            <div class="flex flex-col gap-2 mb-4">
+                <!-- Campo de título -->
+                <div class="mb-4">
+                    <label for="title" class="text-left mb-2">Título</label>
+                    <input pInputText
+                           id="title"
+                           [(ngModel)]="workingTicket.title"
+                           placeholder="Ingrese el título del ticket"
+                           [style]="{ width: '100%' }" />
+                </div>
+
+                <div class="pb-4">
+                    <span class="text-surface-900 dark:text-surface-0 font-semibold">
+                        <div class="tags flex gap-2 items-center">
+                          <p-tag severity="success" styleClass="custom-tag">
+                            <span>Success</span>
+                            <i class="pi pi-times close-icon" (click)="removeTag('Success')"></i>
+                          </p-tag>
+                          <p-tag severity="info" styleClass="custom-tag">
+                            <span>Info</span>
+                            <i class="pi pi-times close-icon" (click)="removeTag('Info')"></i>
+                          </p-tag>
+                          <p-tag severity="warn" styleClass="custom-tag">
+                            <span>Warn</span>
+                            <i class="pi pi-times close-icon" (click)="removeTag('Warn')"></i>
+                          </p-tag>
+                        </div>
+                    </span>
+                </div>
+                <label for="description" class="text-left mb-2">Descripción</label>
+
+                <textarea rows="5" cols="30" pTextarea
+                          id="description"
+                          [(ngModel)]="workingTicket.description"
+                          [style]="{ height: '320px', width: '100%' }"
+                ></textarea>
+                <!-- File upload area -->
+                <div class="border border-dashed border-gray-700 rounded p-4 mb-4 text-center">
+                    <div class="flex items-center justify-center">
+                        <i class="pi pi-paperclip mr-2 text-gray-400"></i>
+                        <span class="text-gray-400">Click para <span class="text-blue-400">buscar</span> o arrastra archivos aquí</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-span-12 flex flex-col gap-y-6 px-8 mb-12">
+                <!-- Título de la sección -->
+                <span class="block text-surface-900 dark:text-surface-0 font-semibold text-lg">
+                   Comments
+                </span>
+
+                <!-- Área para escribir un nuevo comentario -->
+                <div class="flex items-center mb-4">
+                    <p-avatar icon="pi pi-user"
+                              shape="circle"
+                              size="large"
+                              styleClass="w-14 h-14 mr-4 bg-surface-200 dark:bg-surface-800">
+                    </p-avatar>
+                    <input pInputText
+                           type="text"
+                           [(ngModel)]="commentText"
+                           placeholder="Escribe un comentario…"
+                           [style]="{width: '100%'}"
+                           (keyup.enter)="addComment()" />
+                    <p-button label="Add" (click)="addComment()" styleClass="ml-2"></p-button>
+                </div>
+
+                <!-- Lista de comentarios -->
+                <div *ngFor="let comment of workingTicket.comments" class="flex items-center rounded p-2">
+                    <!-- Avatar genérico -->
+                    <p-avatar icon="pi pi-user"
+                              shape="circle"
+                              size="large"
+                              styleClass="w-14 h-14 mr-4 bg-surface-200 dark:bg-surface-800">
+                    </p-avatar>
+
+                    <!-- Contenido -->
+                    <div class="ml-4 w-full">
+                        <div class="flex justify-between mb-2">
+                          <span class="block text-surface-900 dark:text-surface-0">
+                            {{ comment.user.createdByUserName }}
+                          </span>
+                                                <span class="block text-surface-700 dark:text-surface-100">
+                            {{ comment.fechaCreacion | date:'EEEE, MMMM dd, y HH:mm' }}
+                          </span>
+                        </div>
+                        <span
+                            class="text-surface-700 dark:text-surface-100 inline-block font-medium border border-surface-200 dark:border-surface-700 p-4 whitespace-normal rounded"
+                            style="word-break: break-word; max-width: 80%;">
+                          {{ comment.comentario }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Divider Vertical -->
+        <p-divider layout="vertical"></p-divider>
+
+        <!-- Columna Derecha (1/4 del ancho): Controles -->
+        <div class="w-1/4 p-3">
+            <div class="flex flex-col mb-4">
+                <label for="estado" class="mb-2">Estado</label>
+                <p-select
+                    id="estado"
+                    [options]="estadosOptions"
+                    [(ngModel)]="workingTicket.estado.id"
+                    placeholder="Estado">
+                </p-select>
+            </div>
+            <div class="flex flex-col mb-4">
+                <label for="prioridad" class="mb-2">Prioridad</label>
+                <p-select
+                    id="prioridad"
+                    [options]="priorityOptions"
+                    [(ngModel)]="workingTicket.prioridad.id"
+                    placeholder="Prioridad">
+                </p-select>
+            </div>
+            <div class="flex flex-col mb-4">
+                <label for="fechaCreacion" class="mb-2">Fecha de Creación</label>
+                <p id="fechaCreacion"> {{ workingTicket.creationDate | date: 'EEEE, MMMM dd' }} </p>
+            </div>
+            <div class="flex flex-col mb-4">
+                <label for="fechaCierre" class="mb-2">Fecha de Cierre</label>
+                <p id="fechaCierre"> {{ workingTicket.closureDate | date: 'EEEE, MMMM dd' }} </p>
+            </div>
+            <!-- ticket-form.component.html -->
+            <div class="flex flex-col mb-4">
+                <label for="usuariosAsignados" class="mb-2">Usuarios Asignados</label>
+                <p-multiSelect
+                    id="usuariosAsignados"
+                    [options]="usersOptions"
+                    [(ngModel)]="selectedUserIds"
+                    placeholder="Seleccionar usuarios"
+                    display="comma"
+                    [filter]="true"
+                    styleClass="wrap-multiselect"
+                    (onChange)="onUserSelectionChange()"
+                ></p-multiSelect>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #footer>
+        <button
+            *ngIf="workingTicket.id"
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger ml-10 mr-10"
+            (click)="deleteTicket()"
+            [disabled]="loading"
+            pTooltip="Eliminar ticket"
+            tooltipPosition="top"
+        ></button>
+        <p-button label="Cancel" [text]="true" severity="secondary" (click)="cancel()"></p-button>
+        <p-button label="Save" [outlined]="true" severity="secondary" (click)="saveTicket()"></p-button>
+    </ng-template>
+</p-dialog>

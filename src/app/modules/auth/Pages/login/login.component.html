@@ -1,0 +1,39 @@
+<app-floating-configurator />
+<div
+    class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
+    <div class="flex flex-col items-center justify-center">
+        <div
+            style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
+            <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
+                <div class="text-center mb-8">
+                    <app-svg-icon></app-svg-icon>
+                    <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4 mt-8">Bienvenido a Help
+                        Point
+                    </div>
+                    <span class="text-muted-color font-medium">Sign in to continue</span>
+                </div>
+
+                <app-login-form></app-login-form>
+
+                <p-divider></p-divider>
+
+                <div class="flex flex-col items-center gap-5 mt-8">
+                    <span class="text-muted-color font-medium">Necesita soporte?</span>
+                    <a
+                        class="p-button p-component"
+                        [routerLink]="['/support/request']"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        <span class="p-button-icon pi pi-wrench"></span>
+                        <span class="p-button-label">pedir soporte</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fixed bottom-4 left-1/2 translate-x-[-50%] md:left-auto md:right-4 md:translate-x-0 z-50">
+        <a href="https://www.digitalocean.com/?refcode=e88787686365&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img
+            src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg"
+            alt="DigitalOcean Referral Badge" /></a>
+    </div>
+</div>

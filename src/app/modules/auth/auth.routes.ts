@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Access } from './access';
-import { LoginComponent } from './LoginComponent/login.component';
+import { LoginComponent } from './Pages/login/login.component'
 import { Error } from './error';
 
 export default [

@@ -1,0 +1,16 @@
+<p-button
+    [type]="typeBtn"
+    [disabled]="disabled || loading"
+    [ngClass]="colors"
+    class="w-full font-medium rounded text-sm px-5 py-2 flex items-center justify-center"
+>
+    <p-progress-spinner
+        *ngIf="loading"
+        strokeWidth="8"
+        fill="transparent"
+        animationDuration=".5s"
+        [style]="{ width: '20px', height: '20px' }"
+        class="mr-2"
+    ></p-progress-spinner>
+    <ng-content></ng-content>
+</p-button>
